@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0B0E14">
+<title>Mike Render — ล่ามสถาปนิก → AI</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Anuphan:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0B0E14; --bg2:#11151F; --panel:#151A26; --panel2:#1A2030;
+  --line:#232A3B; --line2:#2E3850;
+  --txt:#D9DEEA; --dim:#8A93A8; --faint:#5A6378;
+  --amber:#FFB454; --cyan:#39BAE6; --green:#7FD962; --red:#F26D78; --violet:#C7A6FF;
+  --mono:'JetBrains Mono',monospace; --thai:'Anuphan','JetBrains Mono',sans-serif;
+  --r:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--txt); font-family:var(--thai);
+  font-size:15px; line-height:1.55; min-height:100vh;
+  background-image:
+    radial-gradient(1200px 500px at 80% -10%, rgba(57,186,230,.06), transparent 60%),
+    radial-gradient(900px 400px at 10% 0%, rgba(255,180,84,.05), transparent 60%);
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:999; opacity:.04;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.wrap{max-width:980px;margin:0 auto;padding:0 16px 140px}
+
+/* ───── header ───── */
+header{padding:34px 0 10px}
+.brand{font-family:var(--mono);font-weight:800;font-size:clamp(26px,5vw,38px);letter-spacing:-1px}
+.brand .mk{color:var(--amber)} .brand .rd{color:var(--cyan)}
+.brand .cat{font-size:.55em;color:var(--faint);font-weight:400;margin-left:8px}
+.tagline{color:var(--dim);margin-top:4px;font-size:14px}
+.tagline b{color:var(--txt)}
+.hbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;font-family:var(--mono);font-size:11px}
+.hbar span{border:1px solid var(--line);border-radius:999px;padding:3px 10px;color:var(--dim)}
+.hbar span.ok{color:var(--green);border-color:rgba(127,217,98,.35)}
+
+/* ───── group cards ───── */
+.grp{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);margin-top:14px;overflow:hidden}
+.grp>summary{
+  cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;
+  padding:13px 16px;user-select:none;font-weight:600;
+}
+.grp>summary::-webkit-details-marker{display:none}
+.grp>summary .gi{font-family:var(--mono);font-size:11px;font-weight:800;color:var(--bg);
+  background:var(--amber);border-radius:5px;padding:2px 7px;letter-spacing:.5px}
+.grp>summary .gt{flex:1}
+.grp>summary .gsub{font-size:12px;color:var(--faint);font-weight:400;display:block}
+.grp>summary .chev{color:var(--faint);transition:transform .25s;font-family:var(--mono)}
+.grp[open]>summary .chev{transform:rotate(90deg)}
+.grp>summary .badge{font-family:var(--mono);font-size:10px;color:var(--cyan);border:1px solid rgba(57,186,230,.3);border-radius:999px;padding:1px 8px}
+.gbody{padding:4px 16px 16px;border-top:1px solid var(--line)}
+
+/* ───── topic rows ───── */
+.topic{padding:12px 0;border-bottom:1px dashed var(--line)}
+.topic:last-child{border-bottom:none}
+.tlabel{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+.tlabel .name{font-weight:600}
+.tlabel .hint{font-size:12px;color:var(--faint)}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{
+  font-family:var(--thai);font-size:13px;color:var(--dim);
+  background:var(--bg2);border:1px solid var(--line);border-radius:999px;
+  padding:5px 13px;cursor:pointer;transition:all .15s;
+}
+.pill:hover{border-color:var(--line2);color:var(--txt)}
+.pill.on{background:rgba(255,180,84,.12);border-color:var(--amber);color:var(--amber);font-weight:600}
+.pill.on.lock{background:rgba(57,186,230,.12);border-color:var(--cyan);color:var(--cyan)}
+.pill.warnpill.on{background:rgba(242,109,120,.12);border-color:var(--red);color:var(--red)}
+.pill .auto-ic{font-size:11px;opacity:.8}
+.pill:disabled,.pill.dis{opacity:.35;cursor:not-allowed;text-decoration:line-through}
+
+/* ───── inputs ───── */
+textarea,input[type=text],select{
+  width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:8px;
+  color:var(--txt);font-family:var(--thai);font-size:14px;padding:10px 12px;outline:none;
+}
+textarea:focus,input[type=text]:focus{border-color:var(--cyan)}
+textarea{resize:vertical;min-height:64px;font-family:var(--mono);font-size:13px}
+.charcount{font-family:var(--mono);font-size:11px;color:var(--faint);text-align:right;margin-top:3px}
+.charcount.over{color:var(--red)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{font-family:var(--mono);font-size:11px;color:var(--cyan);background:rgba(57,186,230,.07);
+  border:1px solid rgba(57,186,230,.25);border-radius:6px;padding:3px 9px;cursor:pointer}
+.chip:hover{background:rgba(57,186,230,.15)}
+.note{font-size:12px;color:var(--faint);margin-top:6px}
+.note b{color:var(--green)}
+
+/* ───── image slots ───── */
+.imgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:10px}
+.slot{
+  border:1.5px dashed var(--line2);border-radius:var(--r);background:var(--bg2);
+  min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;position:relative;overflow:hidden;transition:border-color .15s;text-align:center;padding:8px;
+}
+.slot:hover{border-color:var(--cyan)}
+.slot.filled{border-style:solid;border-color:var(--line2)}
+.slot.model{grid-column:span 2;min-height:150px;border-color:rgba(255,180,84,.5)}
+.slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.85}
+.slot .sl-tag{position:relative;z-index:2;font-family:var(--mono);font-size:10px;font-weight:800;
+  background:var(--bg);border:1px solid var(--line2);color:var(--amber);border-radius:5px;padding:2px 8px}
+.slot .sl-txt{position:relative;z-index:2;font-size:12px;color:var(--dim);margin-top:6px}
+.slot.filled .sl-txt{background:rgba(11,14,20,.8);border-radius:6px;padding:2px 8px}
+.slot .sl-x{position:absolute;top:6px;right:6px;z-index:3;background:rgba(11,14,20,.85);
+  border:1px solid var(--line2);color:var(--red);border-radius:6px;font-family:var(--mono);
+  font-size:11px;padding:2px 7px;cursor:pointer;display:none}
+.slot.filled .sl-x{display:block}
+.rolewrap{margin-top:6px}
+.rolewrap select{font-size:12px;padding:6px 8px}
+
+/* ───── conflict / warning banners ───── */
+.warnbox{border:1px solid rgba(242,109,120,.4);background:rgba(242,109,120,.07);
+  border-radius:8px;padding:10px 13px;font-size:13px;margin:10px 0;color:#F8B7BD;display:none}
+.warnbox.show{display:block}
+.warnbox b{color:var(--red)}
+
+/* ───── generate bar ───── */
+.genbar{
+  position:fixed;bottom:0;left:0;right:0;z-index:50;
+  background:linear-gradient(transparent, rgba(11,14,20,.8) 25%, var(--bg) 60%);
+  padding:24px 16px 18px;
+}
+.genbar .inner{max-width:980px;margin:0 auto;display:flex;gap:10px;align-items:center}
+.btn-gen{
+  flex:1;font-family:var(--mono);font-weight:800;font-size:16px;letter-spacing:1px;
+  background:linear-gradient(135deg,var(--amber),#FF8A3D);color:#1A1205;border:none;
+  border-radius:12px;padding:15px;cursor:pointer;transition:transform .1s, box-shadow .2s;
+  box-shadow:0 4px 24px rgba(255,180,84,.25);
+}
+.btn-gen:hover{transform:translateY(-1px);box-shadow:0 6px 30px rgba(255,180,84,.4)}
+.btn-gen:active{transform:translateY(1px)}
+.btn-side{font-family:var(--mono);font-size:12px;background:var(--panel2);color:var(--dim);
+  border:1px solid var(--line2);border-radius:12px;padding:15px 14px;cursor:pointer}
+.btn-side:hover{color:var(--txt);border-color:var(--cyan)}
+
+/* ───── output ───── */
+#out{margin-top:22px;display:none}
+#out.show{display:block;animation:rise .4s ease}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.ironbox{
+  border:1px solid rgba(255,180,84,.5);background:rgba(255,180,84,.06);
+  border-radius:var(--r);padding:14px 16px;font-size:13.5px;
+}
+.ironbox h3{font-family:var(--mono);font-size:13px;color:var(--amber);letter-spacing:1px;margin-bottom:8px}
+.ironbox ol{padding-left:20px;display:grid;gap:4px}
+.ironbox li b{color:var(--amber)}
+.dialect{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);margin-top:14px;overflow:hidden}
+.dhead{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line);background:var(--panel2)}
+.dhead .dname{font-family:var(--mono);font-weight:800;font-size:14px}
+.dhead .dfor{font-size:12px;color:var(--faint);flex:1}
+.dialect.d-gpt .dname{color:var(--green)}
+.dialect.d-gem .dname{color:var(--cyan)}
+.dialect.d-gen .dname{color:var(--violet)}
+.dialect.rec{box-shadow:0 0 0 1px rgba(127,217,98,.4)}
+.recband{font-family:var(--mono);font-size:10px;background:rgba(127,217,98,.15);color:var(--green);
+  border:1px solid rgba(127,217,98,.4);border-radius:999px;padding:2px 9px}
+.btn-copy{font-family:var(--mono);font-size:12px;background:var(--bg2);color:var(--cyan);
+  border:1px solid rgba(57,186,230,.4);border-radius:8px;padding:6px 14px;cursor:pointer;transition:all .15s}
+.btn-copy:hover{background:rgba(57,186,230,.12)}
+.btn-copy.done{color:var(--green);border-color:rgba(127,217,98,.5)}
+pre.prompt{
+  font-family:var(--mono);font-size:12.5px;line-height:1.6;color:#C9D4E8;
+  padding:14px 16px;white-space:pre-wrap;word-break:break-word;max-height:420px;overflow:auto;
+}
+pre.prompt .kw{color:var(--amber);font-weight:600}
+.dtips{border-top:1px dashed var(--line);padding:10px 16px;font-size:12.5px;color:var(--dim)}
+.dtips b{color:var(--txt)}
+.checklist{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);margin-top:14px;padding:13px 16px}
+.checklist h3{font-family:var(--mono);font-size:13px;color:var(--cyan);letter-spacing:1px;margin-bottom:8px}
+.checklist ul{list-style:none;display:grid;gap:5px;font-size:13.5px}
+.checklist li::before{content:"☐ ";color:var(--cyan);font-family:var(--mono)}
+
+/* ───── toast ───── */
+#toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--panel2);border:1px solid var(--line2);color:var(--txt);border-radius:10px;
+  padding:9px 18px;font-size:13px;opacity:0;pointer-events:none;transition:all .25s;z-index:99}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+footer{margin-top:40px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--faint)}
+footer a{color:var(--faint)}
+@media(max-width:560px){
+  .slot.model{grid-column:span 2}
+  .imgrid{grid-template-columns:repeat(2,1fr)}
+  .grp>summary{padding:12px 13px}
+  .gbody{padding:4px 13px 13px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="brand"><span class="mk">MIKE</span> <span class="rd">RENDER</span><span class="cat">₍^. .^₎⟆</span></div>
+  <div class="tagline">ล่ามแปลภาษา <b>คน → AI</b> · สร้าง prompt สำหรับ render โมเดล 3D โดย <b>ล็อกรูปทรง 100%</b> — ห้าม AI แก้โมเดล</div>
+  <div class="hbar">
+    <span class="ok">● OFFLINE — ประมวลผลในเครื่อง</span>
+    <span>TOKEN = 0</span>
+    <span>รูปไม่ออกจากเครื่อง</span>
+    <span>v1.0</span>
+  </div>
+</header>
+
+<!-- ════════ A · INPUT ════════ -->
+<details class="grp" open id="grpA">
+  <summary><span class="gi">A</span><span class="gt">รูปภาพ + คำอธิบาย<span class="gsub">โมเดลต้นฉบับ 1 รูป (บังคับ) · ref วัสดุ/บรรยากาศ 0–5 รูป</span></span><span class="chev">▶</span></summary>
+  <div class="gbody">
+
+    <div class="topic">
+      <div class="tlabel"><span class="name">📐 รูปโมเดล + รูปอ้างอิง</span><span class="hint">รูปอยู่ในเครื่องเท่านั้น — แอพไม่อัปโหลดไปไหน</span></div>
+      <div class="imgrid" id="imgrid"></div>
+      <div class="note">💡 รูปโมเดลควร <b>clean</b> — ปิดเส้น grid / guide / แกน ก่อน capture (AI จะตีความเส้นพวกนี้เป็นวัตถุ)</div>
+    </div>
+
+    <div class="topic">
+      <div class="tlabel"><span class="name">🏠 ประเภทอาคาร</span></div>
+      <div class="pills" id="btype"></div>
+    </div>
+
+    <div class="topic">
+      <div class="tlabel"><span class="name">✍️ คำอธิบายสั้น</span><span class="hint">ภาษาอังกฤษ ≤200 ตัวอักษร — สั้น = AI ฟังครบ</span></div>
+      <textarea id="desc" maxlength="300" placeholder="e.g. two-storey modern tropical house, white walls, dark hipped roof"></textarea>
+      <div class="charcount" id="descCount">0 / 200</div>
+      <div class="chips" id="descChips"></div>
+    </div>
+
+  </div>
+</details>
+
+<!-- groups B–H injected by JS -->
+<div id="groups"></div>
+
+<div class="warnbox" id="conflictBox"></div>
+
+<!-- ════════ OUTPUT ════════ -->
+<div id="out"></div>
+
+<footer>MIKE RENDER · part of MIKE-OS · template engine — no AI, no server, no tracking<br>geometry-lock pattern validated 2026-06 (GPT 9/10 · Gemini 6/10 on chained edits)</footer>
+</div>
+
+<div class="genbar"><div class="inner">
+  <button class="btn-side" id="btnReset" title="ล้างค่าทั้งหมดกลับ Auto">RESET</button>
+  <button class="btn-gen" id="btnGen">⚡ GENERATE PROMPT</button>
+  <button class="btn-side" id="btnSave" title="จำค่าที่ตั้งไว้ในเครื่อง">SAVE</button>
+</div></div>
+
+<div id="toast"></div>
+
+<script>
+"use strict";
+/* ════════════════════════════════════════════════════════
+   MIKE RENDER v1.0 — pure client-side prompt compiler
+   หัวใจ: PRESERVE list บังคับแนบทุก output (R1) · ห้าม chain (R2)
+   ════════════════════════════════════════════════════════ */
+const VER = "mr-v1";
+
+/* ---------- topic config (B–H · 26 topics + A) ---------- */
+/* option: {v, th, en}  — en = English prompt fragment ("" = omit) */
+const AUTO = {v:"auto", th:"⚙️ Auto", en:""};
+const CFG = [
+{id:"B", icon:"B", title:"เอาต์พุต", sub:"AI เป้าหมาย · สไตล์ภาพ · ระดับสมจริง", topics:[
+ {id:"target", name:"🎯 AI เป้าหมาย", hint:"สร้างให้ครบทุกภาษา — เลือกเพื่อไฮไลต์ตัวที่จะใช้", opts:[
+   {v:"all", th:"ทั้งหมด", en:""}, {v:"gpt", th:"GPT / ChatGPT", en:""}, {v:"gem", th:"Gemini", en:""}, {v:"gen", th:"AI อื่นๆ (Qwen·Grok·Copilot)", en:""}], def:"all"},
+ {id:"style", name:"🎨 สไตล์ภาพ", hint:"สไตล์วาด = เสี่ยง drift บน Gemini", opts:[AUTO,
+   {v:"photo", th:"ภาพถ่ายจริง", en:"photorealistic architectural photography, natural materials and imperfections"},
+   {v:"cg", th:"CG render คมๆ", en:"clean high-end CG architectural rendering, crisp materials"},
+   {v:"water", th:"สีน้ำ ⚠️", en:"loose watercolor architectural illustration, soft washes, visible paper texture", warn:true},
+   {v:"pencil", th:"สเก็ตช์ดินสอ ⚠️", en:"hand-drawn pencil sketch, fine linework, light hatching", warn:true},
+   {v:"diagram", th:"ไดอะแกรม ⚠️", en:"minimal white architectural diagram style, flat tones", warn:true}]},
+ {id:"realism", name:"🔬 ระดับดีเทล", opts:[AUTO,
+   {v:"ultra", th:"สูงสุด", en:"ultra-detailed, photographic micro-detail, subtle weathering"},
+   {v:"mid", th:"ปานกลาง", en:"moderately detailed, clean presentation look"}]},
+]},
+{id:"C", icon:"C", title:"เวลา · แสง · อากาศ", sub:"6 หัวข้อ — บรรยากาศที่ AI ทำตามได้ 100%", topics:[
+ {id:"time", name:"🕐 เวลา", opts:[AUTO,
+   {v:"morning", th:"เช้า", en:"soft morning light"},
+   {v:"midday", th:"กลางวัน", en:"bright midday sunlight"},
+   {v:"golden", th:"เย็น golden hour", en:"warm golden hour light, low sun"},
+   {v:"blue", th:"โพล้เพล้ blue hour", en:"dusk blue hour, deep blue sky"},
+   {v:"night", th:"กลางคืน", en:"night scene, dark sky"}]},
+ {id:"weather", name:"🌦️ สภาพอากาศ", opts:[AUTO,
+   {v:"clear", th:"แดดใส", en:"clear sky"},
+   {v:"cloud", th:"เมฆครึ้ม", en:"overcast grey sky, soft diffuse light"},
+   {v:"rain", th:"ฝนตก", en:"light rain, wet reflective ground"},
+   {v:"fog", th:"หมอกบาง", en:"thin morning fog"}]},
+ {id:"lightdir", name:"🧭 ทิศแสง", opts:[AUTO,
+   {v:"front", th:"แสงหน้า", en:"front-lit facade"},
+   {v:"side", th:"แสงข้าง", en:"strong side lighting"},
+   {v:"back", th:"แสงย้อน", en:"backlit, rim light on edges"}]},
+ {id:"shadow", name:"🌓 เงา", opts:[AUTO,
+   {v:"hard", th:"เงาคม", en:"crisp hard shadows"},
+   {v:"soft", th:"เงานุ่ม", en:"soft diffused shadows"},
+   {v:"min", th:"เงาน้อย", en:"minimal shadows"}]},
+ {id:"intlight", name:"💡 ไฟในอาคาร", opts:[AUTO,
+   {v:"on", th:"เปิดไฟ", en:"warm interior lights glowing through the windows"},
+   {v:"off", th:"ปิดไฟ", en:"interior lights off"}]},
+ {id:"season", name:"🍃 ฤดู / ต้นไม้", opts:[AUTO,
+   {v:"lush", th:"เขียวชอุ่ม", en:"lush green tropical foliage"},
+   {v:"autumn", th:"ใบไม้เปลี่ยนสี", en:"autumn foliage tones"},
+   {v:"dry", th:"แล้ง", en:"dry season vegetation"}]},
+]},
+{id:"D", icon:"D", title:"บริบทรอบอาคาร", sub:"ที่ตั้ง · สวน · รั้ว · พื้น · ฉากหลัง", topics:[
+ {id:"setting", name:"📍 ที่ตั้ง", opts:[AUTO,
+   {v:"suburb", th:"ชานเมืองไทย", en:"Thai suburban neighborhood setting"},
+   {v:"urban", th:"ในเมือง", en:"urban street context"},
+   {v:"rural", th:"ชนบท", en:"quiet rural countryside setting"},
+   {v:"sea", th:"ริมทะเล", en:"coastal seaside setting"},
+   {v:"hill", th:"เชิงเขา", en:"hillside setting with distant mountains"}]},
+ {id:"garden", name:"🌳 สวน", opts:[AUTO,
+   {v:"trop", th:"สวนเขตร้อน", en:"landscaped tropical garden with shrubs and small trees"},
+   {v:"lawn", th:"สนามหญ้าเรียบ", en:"neat green lawn"},
+   {v:"minimal", th:"มินิมอล", en:"minimal landscaping, a few sculptural plants"}]},
+ {id:"fence", name:"🚧 รั้ว", opts:[AUTO,
+   {v:"none", th:"ไม่มีรั้ว", en:"no fence"},
+   {v:"concrete", th:"รั้วปูนเตี้ย", en:"low concrete fence"},
+   {v:"steel", th:"รั้วเหล็กโปร่ง", en:"slim dark steel fence"}]},
+ {id:"ground", name:"🛣️ พื้นรอบบ้าน", opts:[AUTO,
+   {v:"concrete", th:"คอนกรีต", en:"smooth concrete driveway"},
+   {v:"paver", th:"บล็อกปูพื้น", en:"grey paver-block paving"},
+   {v:"gravel", th:"กรวด", en:"gravel ground cover"},
+   {v:"grass", th:"หญ้า", en:"grass up to the building edge"}]},
+ {id:"bg", name:"🖼️ ฉากหลัง", hint:"Auto = แทนพื้นหลังเปล่าด้วยบริบทจริง", opts:[
+   {v:"auto", th:"⚙️ Auto (แทนที่ให้สมจริง)", en:"replace the plain background with a realistic sky and context that matches the scene"},
+   {v:"sky", th:"ท้องฟ้าโล่ง", en:"open sky background"},
+   {v:"trees", th:"แนวต้นไม้", en:"backdrop of trees"},
+   {v:"houses", th:"บ้านข้างเคียง", en:"neighboring houses softly out of focus in the background"}], def:"auto"},
+]},
+{id:"E", icon:"E", title:"วัสดุ (override)", sub:"ผนัง · หลังคา · กรอบ · กระจก · พื้น/บันได · accent — เลือก 'จาก ref' ได้", topics:[
+ {id:"matWall", name:"🧱 ผนัง", refable:true, opts:[AUTO,
+   {v:"white", th:"ปูนขัดขาว", en:"smooth white painted render walls"},
+   {v:"brick", th:"อิฐโชว์แนว", en:"exposed brick walls"},
+   {v:"wood", th:"ไม้", en:"warm wood siding walls"},
+   {v:"stone", th:"หินธรรมชาติ", en:"natural stone cladding walls"},
+   {v:"loft", th:"ปูนเปลือยลอฟท์", en:"raw polished concrete loft-style walls"}]},
+ {id:"matRoof", name:"🏠 หลังคา", refable:true, opts:[
+   {v:"auto", th:"⚙️ Auto (คงเดิม)", en:""},
+   {v:"tile", th:"กระเบื้องคอนกรีตเข้ม", en:"dark concrete roof tiles"},
+   {v:"metal", th:"เมทัลชีท", en:"standing-seam metal roof"},
+   {v:"shingle", th:"ชิงเกิ้ล", en:"asphalt shingle roof"}], def:"auto"},
+ {id:"matFrame", name:"🪟 กรอบประตูหน้าต่าง", refable:true, opts:[AUTO,
+   {v:"black", th:"อะลูมิเนียมดำ", en:"matte black aluminum window and door frames"},
+   {v:"wood", th:"ไม้", en:"wooden window and door frames"},
+   {v:"white", th:"ขาว", en:"white window and door frames"}]},
+ {id:"matGlass", name:"🔲 กระจก", opts:[AUTO,
+   {v:"clear", th:"ใส", en:"clear glass"},
+   {v:"reflect", th:"สะท้อนเงา", en:"lightly reflective glass"},
+   {v:"green", th:"เขียวตัดแสง", en:"green-tinted solar glass"}]},
+ {id:"matFloor", name:"🪜 พื้น / บันไดหน้า", refable:true, opts:[AUTO,
+   {v:"terrazzo", th:"หินขัด", en:"terrazzo entrance steps and floor"},
+   {v:"tile", th:"กระเบื้อง", en:"large-format tile entrance floor"},
+   {v:"wood", th:"ไม้", en:"wood deck entrance floor"},
+   {v:"stone", th:"หิน", en:"stone entrance steps"}]},
+ {id:"matAccent", name:"✨ วัสดุตกแต่ง (accent)", refable:true, opts:[AUTO,
+   {v:"slat", th:"ระแนงไม้", en:"vertical wood slat battens as accent"},
+   {v:"stone", th:"หินตกแต่ง", en:"feature stone accent wall"},
+   {v:"steel", th:"เหล็กดำ", en:"black steel accent details"}]},
+]},
+{id:"F", icon:"F", title:"กล้อง", sub:"มุมกล้อง default = 🔒 ล็อกตามต้นฉบับ", topics:[
+ {id:"camera", name:"📷 มุมกล้อง", hint:"ล็อก = อยู่ใน PRESERVE list (แนะนำ)", opts:[
+   {v:"lock", th:"🔒 ล็อกตามต้นฉบับ", en:"", lock:true},
+   {v:"free", th:"ปรับ framing เล็กน้อยได้ ⚠️", en:"minor reframing of the camera is allowed", warn:true}], def:"lock"},
+ {id:"lens", name:"🔭 เลนส์", opts:[AUTO,
+   {v:"wide", th:"Wide 24mm", en:"wide-angle architectural lens look (~24mm), minimal distortion"},
+   {v:"normal", th:"Normal 50mm", en:"natural 50mm perspective"},
+   {v:"tele", th:"Tele บีบมุม", en:"telephoto compressed perspective"}]},
+ {id:"aspect", name:"🖥️ สัดส่วนภาพ", opts:[
+   {v:"auto", th:"⚙️ Auto (เท่าต้นฉบับ)", en:"keep the same aspect ratio as the input image"},
+   {v:"169", th:"16:9", en:"16:9 landscape aspect ratio"},
+   {v:"43", th:"4:3", en:"4:3 aspect ratio"},
+   {v:"11", th:"1:1", en:"square 1:1 aspect ratio"},
+   {v:"916", th:"9:16 แนวตั้ง", en:"9:16 vertical aspect ratio"}], def:"auto"},
+]},
+{id:"G", icon:"G", title:"ชีวิตในภาพ", sub:"หุ่นมาตราส่วน · คน · รถ", topics:[
+ {id:"figure", name:"🧍 หุ่น scale ในโมเดล", hint:"Auto = ลบออก", opts:[
+   {v:"auto", th:"⚙️ Auto (ลบออก)", en:"remove the placeholder scale figure"},
+   {v:"keep", th:"คงไว้ (แปลงเป็นคนจริง)", en:"replace the placeholder figure with a realistic person in the same position"}], def:"auto"},
+ {id:"people", name:"👥 คน", opts:[AUTO,
+   {v:"none", th:"ไม่มีคน", en:"no people"},
+   {v:"few", th:"1–2 คน", en:"one or two casually dressed people for scale"},
+   {v:"some", th:"หลายคน", en:"a few people adding life to the scene"}]},
+ {id:"cars", name:"🚗 รถ", opts:[AUTO,
+   {v:"none", th:"ไม่มีรถ", en:"no cars"},
+   {v:"one", th:"จอด 1 คัน", en:"one modern car parked in the driveway"}]},
+]},
+{id:"H", icon:"H", title:"ความเข้มงวด", sub:"ระดับการล็อกรูปทรง", topics:[
+ {id:"strict", name:"🔐 โหมดล็อก geometry", hint:"STRICT = ห้ามขยับทุกองค์ประกอบ (แนะนำ)", opts:[
+   {v:"strict", th:"🔒 STRICT", en:"", lock:true},
+   {v:"relax", th:"RELAXED", en:""}], def:"strict"},
+ {id:"site", name:"🏗️ รวมรูปหน้างานจริง", hint:"Phase 2 — ยังไม่เปิดใช้", opts:[
+   {v:"off", th:"ปิด (Phase 2)", en:"", dis:true}], def:"off"},
+]},
+];
+
+/* ---------- building types & desc chips ---------- */
+const BTYPES=[
+ {v:"house", th:"บ้านพักอาศัย", en:"residential house"},
+ {v:"commercial", th:"อาคารพาณิชย์", en:"commercial shophouse building"},
+ {v:"office", th:"สำนักงาน", en:"office building"},
+ {v:"resort", th:"รีสอร์ท/วิลล่า", en:"resort villa"},
+ {v:"other", th:"อื่นๆ", en:"building"}];
+const DCHIPS=["two-storey house","modern tropical style","white walls, dark roof","emphasize the entrance porch","minimal facade","large glass openings"];
+
+/* ---------- ref roles ---------- */
+const ROLES=[
+ {v:"auto", th:"⚙️ Auto"},
+ {v:"material", th:"วัสดุ/texture"},
+ {v:"mood", th:"โทน/บรรยากาศ"},
+ {v:"env", th:"สภาพแวดล้อม"},
+ {v:"style", th:"สไตล์ภาพรวม"}];
+const ROLE_EN={auto:"reference (materials and mood only)",material:"material/texture reference only",mood:"color tone and mood reference only",env:"environment/landscape reference only",style:"overall style reference only"};
+
+/* ---------- state ---------- */
+const state={btype:"house", desc:"", topics:{}, refs:[null,null,null,null,null], refRoles:["auto","auto","auto","auto","auto"], model:null};
+CFG.forEach(g=>g.topics.forEach(t=>state.topics[t.id]=t.def||"auto"));
+
+/* ---------- build UI ---------- */
+const $=s=>document.querySelector(s);
+const groupsEl=$("#groups");
+CFG.forEach(g=>{
+  const d=document.createElement("details"); d.className="grp"; d.id="grp"+g.id;
+  if(g.id==="B"||g.id==="C") d.open=true;
+  d.innerHTML=`<summary><span class="gi">${g.icon}</span><span class="gt">${g.title}<span class="gsub">${g.sub}</span></span><span class="badge" id="bdg${g.id}"></span><span class="chev">▶</span></summary><div class="gbody" id="gb${g.id}"></div>`;
+  groupsEl.appendChild(d);
+  const body=d.querySelector(".gbody");
+  g.topics.forEach(t=>{
+    const tp=document.createElement("div"); tp.className="topic";
+    tp.innerHTML=`<div class="tlabel"><span class="name">${t.name}</span>${t.hint?`<span class="hint">${t.hint}</span>`:""}</div><div class="pills" id="p_${t.id}"></div>`;
+    body.appendChild(tp);
+    const pl=tp.querySelector(".pills");
+    t.opts.forEach(o=>{
+      const b=document.createElement("button"); b.type="button";
+      b.className="pill"+(o.warn?" warnpill":"")+(o.dis?" dis":"");
+      b.textContent=o.th; b.dataset.v=o.v;
+      if(o.dis) b.disabled=true;
+      b.onclick=()=>{state.topics[t.id]=o.v; renderPills(t); checkConflicts(); updateBadges();};
+      pl.appendChild(b);
+    });
+    if(t.refable){ // "จาก ref N" pills 1-5 (guarded: only enabled if ref exists)
+      for(let i=1;i<=5;i++){
+        const b=document.createElement("button"); b.type="button"; b.className="pill refpill"; b.dataset.v="ref"+i; b.dataset.ref=i;
+        b.textContent="📎 จาก ref "+i;
+        b.onclick=()=>{ if(!state.refs[i-1]){toast("ยังไม่ได้ใส่รูป ref "+i);return;} state.topics[t.id]="ref"+i; renderPills(t); updateBadges();};
+        pl.appendChild(b);
+      }
+    }
+    renderPills(t);
+  });
+});
+function renderPills(t){
+  document.querySelectorAll(`#p_${t.id} .pill`).forEach(b=>{
+    b.classList.toggle("on", b.dataset.v===state.topics[t.id]);
+    const opt=t.opts.find(o=>o.v===b.dataset.v);
+    if(opt&&opt.lock) b.classList.toggle("lock", b.dataset.v===state.topics[t.id]);
+    if(b.dataset.ref){ b.classList.toggle("dis", !state.refs[b.dataset.ref-1]); }
+  });
+}
+function refreshAllPills(){ CFG.forEach(g=>g.topics.forEach(renderPills)); }
+function updateBadges(){
+  CFG.forEach(g=>{
+    const n=g.topics.filter(t=>state.topics[t.id]!==(t.def||"auto")).length;
+    const el=$("#bdg"+g.id); el.textContent=n?`ปรับ ${n}`:""; el.style.display=n?"":"none";
+  });
+}
+
+/* building type pills */
+BTYPES.forEach(o=>{
+  const b=document.createElement("button"); b.type="button"; b.className="pill"; b.textContent=o.th; b.dataset.v=o.v;
+  b.onclick=()=>{state.btype=o.v; document.querySelectorAll("#btype .pill").forEach(x=>x.classList.toggle("on",x.dataset.v===o.v));};
+  if(o.v===state.btype) b.classList.add("on");
+  $("#btype").appendChild(b);
+});
+
+/* desc */
+const descEl=$("#desc");
+descEl.oninput=()=>{state.desc=descEl.value; const n=descEl.value.length; const c=$("#descCount"); c.textContent=n+" / 200"; c.classList.toggle("over",n>200);};
+DCHIPS.forEach(c=>{
+  const b=document.createElement("button"); b.type="button"; b.className="chip"; b.textContent="+ "+c;
+  b.onclick=()=>{descEl.value=(descEl.value?descEl.value.trim().replace(/,?$/,", "):"")+c; descEl.dispatchEvent(new Event("input"));};
+  $("#descChips").appendChild(b);
+});
+
+/* ---------- image slots (FileReader preview · local only) ---------- */
+const grid=$("#imgrid");
+function makeSlot(idx){ // idx -1 = model, 0..4 = refs
+  const isModel=idx<0;
+  const s=document.createElement("div"); s.className="slot"+(isModel?" model":"");
+  s.innerHTML=`<span class="sl-tag">${isModel?"IMAGE 1 · STRUCTURE 🔒":"ref "+(idx+1)}</span>
+    <span class="sl-txt">${isModel?"คลิกใส่รูปโมเดล 3D (บังคับ)":"คลิกใส่รูปอ้างอิง"}</span>
+    <button class="sl-x" type="button">✕</button>`;
+  const inp=document.createElement("input"); inp.type="file"; inp.accept="image/*"; inp.style.display="none";
+  s.appendChild(inp);
+  s.onclick=e=>{ if(e.target.classList.contains("sl-x")||e.target.tagName==="SELECT"||e.target.tagName==="OPTION")return; inp.click(); };
+  inp.onchange=()=>{
+    const f=inp.files[0]; if(!f)return;
+    const r=new FileReader();
+    r.onload=ev=>{
+      let img=s.querySelector("img"); if(!img){img=document.createElement("img"); s.insertBefore(img,s.firstChild);}
+      img.src=ev.target.result; s.classList.add("filled");
+      if(isModel) state.model=f.name; else state.refs[idx]=f.name;
+      s.querySelector(".sl-txt").textContent=f.name.length>22?f.name.slice(0,20)+"…":f.name;
+      refreshAllPills();
+    };
+    r.readAsDataURL(f);
+  };
+  s.querySelector(".sl-x").onclick=ev=>{
+    ev.stopPropagation();
+    const img=s.querySelector("img"); if(img)img.remove(); s.classList.remove("filled"); inp.value="";
+    if(isModel) state.model=null; else {state.refs[idx]=null;
+      // guard: clear any material set to this ref
+      Object.keys(state.topics).forEach(k=>{ if(state.topics[k]==="ref"+(idx+1)) state.topics[k]="auto"; });
+    }
+    s.querySelector(".sl-txt").textContent=isModel?"คลิกใส่รูปโมเดล 3D (บังคับ)":"คลิกใส่รูปอ้างอิง";
+    refreshAllPills(); updateBadges();
+  };
+  if(!isModel){
+    const rw=document.createElement("div"); rw.className="rolewrap"; rw.style.cssText="position:relative;z-index:2;width:100%";
+    const sel=document.createElement("select");
+    ROLES.forEach(r=>{const o=document.createElement("option");o.value=r.v;o.textContent="บทบาท: "+r.th;sel.appendChild(o);});
+    sel.onchange=()=>state.refRoles[idx]=sel.value;
+    sel.onclick=e=>e.stopPropagation();
+    rw.appendChild(sel); s.appendChild(rw);
+  }
+  return s;
+}
+grid.appendChild(makeSlot(-1));
+for(let i=0;i<5;i++) grid.appendChild(makeSlot(i));
+
+/* ---------- conflict matrix (S1-S11) ---------- */
+function getConflicts(){
+  const t=state.topics, list=[];
+  if(t.time==="night"&&t.shadow==="hard")
+    list.push({msg:"<b>กลางคืน + เงาคม</b> — ไม่มีแดดตอนกลางคืน → จะแปลงเป็น 'เงาคมจากไฟส่องอาคาร' ให้อัตโนมัติ", fix:()=>{}});
+  if((t.weather==="rain"||t.weather==="cloud")&&t.time==="golden")
+    list.push({msg:"<b>"+(t.weather==="rain"?"ฝนตก":"เมฆครึ้ม")+" + golden hour</b> — แสงทองต้องมีแดด → จะใช้ 'แสงอุ่นหลังฝน/แดดลอดเมฆ' ให้แทน"});
+  if(t.time==="night"&&t.weather==="clear"&&t.lightdir!=="auto")
+    list.push({msg:"<b>กลางคืน + ทิศแสงแดด</b> — จะตีความเป็นทิศของไฟ/แสงจันทร์แทน"});
+  if((t.style==="water"||t.style==="pencil"||t.style==="diagram"))
+    list.push({msg:"<b>สไตล์วาด + Gemini</b> — จากการทดสอบจริง Gemini drift หนักกับสไตล์วาด (4/10) · <b>แนะนำใช้ GPT</b> (ผ่าน 8.5/10)"});
+  if(t.camera==="free"&&t.strict==="strict")
+    list.push({msg:"<b>ปลดล็อกกล้อง + STRICT</b> — จะคง STRICT กับตัวอาคาร แต่ยกเว้น camera framing ให้ชัดเจนใน prompt"});
+  return list;
+}
+function checkConflicts(){
+  const list=getConflicts(); const box=$("#conflictBox");
+  if(list.length){ box.classList.add("show"); box.innerHTML="⚠️ <b>ตรวจพบค่าขัดกัน "+list.length+" จุด</b> (แก้ใน prompt ให้อัตโนมัติ):<br>"+list.map(c=>"· "+c.msg).join("<br>"); }
+  else box.classList.remove("show");
+}
+
+/* ---------- prompt compiler ---------- */
+function opt(tid){ for(const g of CFG){const t=g.topics.find(x=>x.id===tid); if(t) return t.opts.find(o=>o.v===state.topics[tid]);} return null; }
+function frag(tid){ const v=state.topics[tid]; if(v.startsWith("ref")) return null; const o=opt(tid); return o&&o.en?o.en:null; }
+
+function compile(){
+  const t=state.topics;
+  /* — image roles — */
+  const refIdx=[]; state.refs.forEach((r,i)=>{if(r)refIdx.push(i);});
+  let roles=["image 1 = STRUCTURE — the 3D model. Use it as the exact geometry source. Do NOT alter it."];
+  refIdx.forEach((i,k)=>{
+    let role=ROLE_EN[state.refRoles[i]];
+    // material slots pointing at this ref override role text
+    const matUse=[];
+    const matNames={matWall:"wall material",matRoof:"roof material",matFrame:"frame material",matFloor:"floor/steps material",matAccent:"accent material"};
+    Object.entries(matNames).forEach(([k2,n])=>{ if(t[k2]==="ref"+(i+1)) matUse.push(n); });
+    if(matUse.length) role=matUse.join(" + ")+" reference — copy only the material/texture, nothing else";
+    roles.push(`image ${k+2} = ${role}.`);
+  });
+
+  /* — CHANGE block (compressed: only non-auto, priority order) — */
+  const ch=[];
+  // style/realism
+  const style=frag("style")||"photorealistic architectural photography, natural materials";
+  ch.push("Render as: "+style+(frag("realism")?", "+frag("realism"):"")+".");
+  // materials (incl. ref-based)
+  const mats=[];
+  const matMap={matWall:["walls","ref"],matRoof:["roof","ref"],matFrame:["window/door frames","ref"],matGlass:["glass",null],matFloor:["entrance floor/steps","ref"],matAccent:["accent details","ref"]};
+  Object.entries(matMap).forEach(([k,[label]])=>{
+    const v=t[k];
+    if(v&&v.startsWith("ref")){ const n=v.slice(3); const imgNo=refIdx.indexOf(n-1)+2; mats.push(`${label}: use the material shown in image ${imgNo}`); }
+    else { const f=frag(k); if(f) mats.push(f); }
+  });
+  if(mats.length) ch.push("Materials — "+mats.join("; ")+".");
+  // light & atmosphere (with conflict auto-resolution)
+  const atmo=[];
+  let timeF=frag("time"), weatherF=frag("weather"), shadowF=frag("shadow"), dirF=frag("lightdir");
+  if(t.time==="night"&&t.shadow==="hard") shadowF="crisp shadows cast by exterior building lights";
+  if(t.weather==="rain"&&t.time==="golden"){ timeF="warm low evening light breaking through after rain"; }
+  if(t.weather==="cloud"&&t.time==="golden"){ timeF="warm low sun breaking through clouds"; }
+  if(t.time==="night"&&dirF) dirF=dirF.replace("lit","lit (by artificial/moon light)");
+  [timeF,weatherF,dirF,shadowF,frag("intlight"),frag("season")].forEach(f=>{if(f)atmo.push(f);});
+  if(t.time==="night"&&t.intlight==="auto") atmo.push("warm interior lights glowing through the windows");
+  if(atmo.length) ch.push("Lighting & atmosphere — "+atmo.join(", ")+".");
+  // context
+  const ctx=[frag("setting"),frag("garden"),frag("fence"),frag("ground"),frag("bg")].filter(Boolean);
+  if(ctx.length) ch.push("Surroundings — "+ctx.join(", ")+".");
+  // life
+  const life=[frag("figure"),frag("people"),frag("cars")].filter(Boolean);
+  if(life.length) ch.push("People & objects — "+life.join(", ")+".");
+  // camera
+  const cam=[frag("lens"),frag("aspect")].filter(Boolean);
+  if(t.camera==="free") cam.unshift("minor reframing allowed");
+  if(cam.length) ch.push("Camera — "+cam.join(", ")+".");
+
+  /* — PRESERVE block — */
+  let preserve="PRESERVE EXACTLY: the building's geometry, massing, proportions, every window and door position and size, roof form, wall planes, columns, stairs"+(t.camera==="lock"?", the camera angle and framing":"")+", and overall scale — exactly as in image 1. Do not add, remove, move, or reshape any architectural element.";
+  if(t.strict==="relax") preserve="PRESERVE: the building's overall geometry, massing and proportions as in image 1. Minor adjustments to surroundings are allowed, but the building itself must not be reshaped.";
+  if(t.camera==="free") preserve+=" (Camera framing is the only element allowed to change slightly.)";
+
+  /* — subject line — */
+  const bt=BTYPES.find(b=>b.v===state.btype);
+  let desc=state.desc.trim().slice(0,200);
+  const subj=`This is an untextured 3D model of a ${bt.en}${desc?" — "+desc:""}.`;
+
+  const core={subj,roles,ch,preserve};
+
+  /* — dialects — */
+  const styleWarn=(t.style==="water"||t.style==="pencil"||t.style==="diagram");
+  const gpt =
+`${subj}
+${roles.join("\n")}
+
+TASK — render this model. CHANGE ONLY the following:
+${ch.map(c=>"• "+c).join("\n")}
+
+${preserve}
+
+Keep the result coherent and realistic for the chosen style.`;
+
+  const gem =
+`${subj}
+${roles.join("\n")}
+
+Render this model. Change ONLY the following, and keep everything else unchanged:
+${ch.map(c=>"• "+c).join("\n")}
+
+${preserve}
+Keep everything else exactly unchanged from image 1.`;
+
+  const gen =
+`${subj}
+${roles.join("\n")}
+
+Image-to-image render. CHANGE ONLY:
+${ch.map(c=>"• "+c).join("\n")}
+
+${preserve}`;
+
+  return {gpt,gem,gen,styleWarn,refIdx,core};
+}
+
+/* ---------- output render ---------- */
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;");}
+function hl(s){return esc(s).replace(/^(PRESERVE EXACTLY:|PRESERVE:|TASK[^\n]*|CHANGE ONLY[^\n]*)/gm,'<span class="kw">$1</span>');}
+
+$("#btnGen").onclick=()=>{
+  if(!state.model){ toast("⚠️ ต้องใส่รูปโมเดล (IMAGE 1) ก่อน"); $("#grpA").open=true; $("#grpA").scrollIntoView({behavior:"smooth"}); return; }
+  if(state.desc.length>200) toast("คำอธิบายเกิน 200 ตัวอักษร — จะตัดให้พอดี");
+  if(/[ก-๛]/.test(state.desc)) toast("💡 คำอธิบายมีภาษาไทย — AI render เข้าใจอังกฤษแม่นกว่า ลองใช้ chips ช่วย");
+  const P=compile();
+  const t=state.topics;
+  const target=t.target;
+  const rec = P.styleWarn ? "gpt" : (target!=="all"?target:null);
+  const attach=["รูปโมเดล 3D ต้นฉบับ (= image 1) — แนบใหม่ทุกครั้ง"].concat(P.refIdx.map((i,k)=>`รูป ref ${i+1} (= image ${k+2}) — ${state.refs[i]}`));
+
+  const dial=(cls,name,forTxt,body,tips,isRec)=>`
+  <div class="dialect ${cls} ${isRec?"rec":""}">
+    <div class="dhead"><span class="dname">${name}</span><span class="dfor">${forTxt}</span>
+      ${isRec?'<span class="recband">★ แนะนำ</span>':""}
+      <button class="btn-copy" data-copy="${cls}">COPY</button></div>
+    <pre class="prompt" id="pp_${cls}">${hl(body)}</pre>
+    <div class="dtips">${tips}</div>
+  </div>`;
+
+  $("#out").innerHTML=`
+  <div class="ironbox">
+    <h3>⚠️ กฎเหล็กก่อนใช้ (จากการทดสอบจริง)</h3>
+    <ol>
+      <li><b>แนบรูปต้นฉบับใหม่ทุกครั้ง</b> ที่สั่ง — ห้ามสั่งแก้ต่อจากผลลัพธ์รอบก่อน (drift ทบต้น: ทดสอบแล้ว Gemini 6→5→4)</li>
+      <li>แนบรูปครบตาม checklist ด้านล่าง ลำดับต้องตรงกับ image 1, 2, 3…</li>
+      <li>อยากแก้เพิ่ม → กลับมาปรับค่าในแอพนี้ แล้ว generate ใหม่ + แนบต้นฉบับใหม่</li>
+    </ol>
+  </div>
+  ${dial("d-gpt","GPT","ChatGPT · GPT-image — lock geometry แข็งสุด (ทดสอบ 9/10)",P.gpt,
+    `<b>Tips:</b> ใช้ใน ChatGPT แนบรูปแล้ววางได้เลย · ถ้าเรียกผ่าน API ให้ตั้ง <b>input_fidelity="high"</b> + <b>quality="high"</b>`,
+    rec==="gpt"||rec===null&&false)}
+  ${dial("d-gem","GEMINI","Gemini · Nano Banana — รับ ref ได้ถึง 14 รูป",P.gem,
+    `<b>Tips:</b> Gemini ไวต่อ chain edit มาก — <b>ต้องแนบต้นฉบับใหม่ทุกรอบ</b> · ${P.styleWarn?'<b style="color:var(--red)">สไตล์วาดบน Gemini drift หนัก (ทดสอบ 4/10) — แนะนำใช้ GPT แทน</b> · ':""}จุดแข็ง: multi-reference เยอะๆ`,
+    rec==="gem")}
+  ${dial("d-gen","GENERIC","Qwen · Grok · Copilot · AI image อื่นๆ",P.gen,
+    `<b>Tips:</b> โครงสร้าง CHANGE + PRESERVE ใช้ได้กับ image model ทุกค่าย · ถ้าผลเพี้ยน ให้ลดจำนวนคำสั่ง CHANGE ลงเหลือทีละเรื่อง`,
+    rec==="gen")}
+  <div class="checklist">
+    <h3>📎 CHECKLIST รูปที่ต้องแนบ (${attach.length} รูป · เรียงลำดับ)</h3>
+    <ul>${attach.map(a=>`<li>${a}</li>`).join("")}</ul>
+  </div>`;
+  $("#out").classList.add("show");
+  document.querySelectorAll(".btn-copy").forEach(b=>{
+    b.onclick=()=>{
+      const map={"d-gpt":P.gpt,"d-gem":P.gem,"d-gen":P.gen};
+      navigator.clipboard.writeText(map[b.dataset.copy]).then(()=>{
+        b.textContent="COPIED ✓"; b.classList.add("done");
+        setTimeout(()=>{b.textContent="COPY";b.classList.remove("done");},1800);
+        toast("คัดลอกแล้ว — อย่าลืมแนบรูปต้นฉบับ!");
+      });
+    };
+  });
+  $("#out").scrollIntoView({behavior:"smooth",block:"start"});
+};
+
+/* ---------- save / reset / toast ---------- */
+$("#btnSave").onclick=()=>{
+  localStorage.setItem(VER, JSON.stringify({btype:state.btype,desc:state.desc,topics:state.topics,refRoles:state.refRoles}));
+  toast("💾 บันทึก preset ในเครื่องแล้ว");
+};
+$("#btnReset").onclick=()=>{
+  CFG.forEach(g=>g.topics.forEach(t=>state.topics[t.id]=t.def||"auto"));
+  state.btype="house"; state.desc=""; descEl.value=""; descEl.dispatchEvent(new Event("input"));
+  document.querySelectorAll("#btype .pill").forEach(x=>x.classList.toggle("on",x.dataset.v==="house"));
+  refreshAllPills(); updateBadges(); checkConflicts();
+  toast("รีเซ็ตทุกค่ากลับ Auto แล้ว (รูปยังอยู่)");
+};
+(function load(){
+  try{
+    const s=JSON.parse(localStorage.getItem(VER)||"null"); if(!s)return;
+    if(s.topics) Object.keys(state.topics).forEach(k=>{ if(s.topics[k]&&!String(s.topics[k]).startsWith("ref")) state.topics[k]=s.topics[k]; });
+    if(s.btype){state.btype=s.btype; document.querySelectorAll("#btype .pill").forEach(x=>x.classList.toggle("on",x.dataset.v===s.btype));}
+    if(s.desc){state.desc=s.desc; descEl.value=s.desc; descEl.dispatchEvent(new Event("input"));}
+    refreshAllPills(); updateBadges(); checkConflicts();
+  }catch(e){ localStorage.removeItem(VER); }
+})();
+let toastTimer;
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),2600); }
+
+/* ---------- PWA ---------- */
+if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
