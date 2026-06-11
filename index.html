@@ -205,7 +205,7 @@ footer a{color:var(--faint)}
     <span class="ok">● OFFLINE — ประมวลผลในเครื่อง</span>
     <span>TOKEN = 0</span>
     <span>รูปไม่ออกจากเครื่อง</span>
-    <span>v1.0</span>
+    <span>v1.1</span>
   </div>
 </header>
 
@@ -227,8 +227,9 @@ footer a{color:var(--faint)}
 
     <div class="topic">
       <div class="tlabel"><span class="name">✍️ คำอธิบายสั้น</span><span class="hint">ภาษาอังกฤษ ≤200 ตัวอักษร — สั้น = AI ฟังครบ</span></div>
-      <textarea id="desc" maxlength="300" placeholder="e.g. two-storey modern tropical house, white walls, dark hipped roof"></textarea>
+      <textarea id="desc" maxlength="300" placeholder="[ขนาด/ชั้น + ประเภท], [สไตล์], [จุดที่อยากเน้น]  เช่น  two-storey L-shaped house, modern tropical style, emphasize the courtyard"></textarea>
       <div class="charcount" id="descCount">0 / 200</div>
+      <div class="note">📝 สูตรเขียน: <b>รูปทรง/ชั้น</b> → <b>สไตล์</b> → <b>จุดเน้น 1 อย่าง</b> · ไม่ต้องบรรยายวัสดุ/แสง (มีปุ่มตั้งค่าด้านล่างแล้ว — เขียนซ้ำ = AI สับสน)</div>
       <div class="chips" id="descChips"></div>
     </div>
 
@@ -243,7 +244,7 @@ footer a{color:var(--faint)}
 <!-- ════════ OUTPUT ════════ -->
 <div id="out"></div>
 
-<footer>MIKE RENDER · part of MIKE-OS · template engine — no AI, no server, no tracking<br>geometry-lock pattern validated 2026-06 (GPT 9/10 · Gemini 6/10 on chained edits)</footer>
+<footer>MIKE RENDER v1.1 · part of MIKE-OS · template engine — no AI, no server, no tracking<br>geometry-lock pattern validated 2026-06 · 2 รอบทดสอบจริง (GPT ~9/10 · Gemini ~5-6/10)</footer>
 </div>
 
 <div class="genbar"><div class="inner">
@@ -406,7 +407,7 @@ const BTYPES=[
  {v:"office", th:"สำนักงาน", en:"office building"},
  {v:"resort", th:"รีสอร์ท/วิลล่า", en:"resort villa"},
  {v:"other", th:"อื่นๆ", en:"building"}];
-const DCHIPS=["two-storey house","modern tropical style","white walls, dark roof","emphasize the entrance porch","minimal facade","large glass openings"];
+const DCHIPS=["two-storey house","single-storey house","L-shaped plan","modern tropical style","minimal style","contemporary Thai style","emphasize the entrance porch","emphasize the courtyard","large glass openings","double-height space"];
 
 /* ---------- ref roles ---------- */
 const ROLES=[
@@ -609,8 +610,8 @@ function compile(){
   if(cam.length) ch.push("Camera — "+cam.join(", ")+".");
 
   /* — PRESERVE block — */
-  let preserve="PRESERVE EXACTLY: the building's geometry, massing, proportions, every window and door position and size, roof form, wall planes, columns, stairs"+(t.camera==="lock"?", the camera angle and framing":"")+", and overall scale — exactly as in image 1. Do not add, remove, move, or reshape any architectural element.";
-  if(t.strict==="relax") preserve="PRESERVE: the building's overall geometry, massing and proportions as in image 1. Minor adjustments to surroundings are allowed, but the building itself must not be reshaped.";
+  let preserve="PRESERVE EXACTLY: the building's geometry, massing, proportions, every window and door position and size, roof form, wall planes, columns, stairs"+(t.camera==="lock"?", the camera angle and framing":"")+", and overall scale — exactly as in image 1. Do not add, remove, move, or reshape any architectural element. Where the model shows distinct material zones, keep each material strictly within its original zone — do not extend any material beyond its zone boundaries.";
+  if(t.strict==="relax") preserve="PRESERVE: the building's overall geometry, massing and proportions as in image 1. Minor adjustments to surroundings are allowed, but the building itself must not be reshaped. Keep each material within its original zone boundaries.";
   if(t.camera==="free") preserve+=" (Camera framing is the only element allowed to change slightly.)";
 
   /* — subject line — */
@@ -634,7 +635,8 @@ ${preserve}
 Keep the result coherent and realistic for the chosen style.`;
 
   const gem =
-`${subj}
+`This is a strict re-texture and re-light task. Do NOT redesign the building.
+${subj}
 ${roles.join("\n")}
 
 Render this model. Change ONLY the following, and keep everything else unchanged:
@@ -666,7 +668,7 @@ $("#btnGen").onclick=()=>{
   const P=compile();
   const t=state.topics;
   const target=t.target;
-  const rec = P.styleWarn ? "gpt" : (target!=="all"?target:null);
+  const rec = P.styleWarn ? "gpt" : (target!=="all"?target:"gpt"); /* default ★ = GPT — ทดสอบจริง 2 รอบ lock แข็งสุด */
   const attach=["รูปโมเดล 3D ต้นฉบับ (= image 1) — แนบใหม่ทุกครั้ง"].concat(P.refIdx.map((i,k)=>`รูป ref ${i+1} (= image ${k+2}) — ${state.refs[i]}`));
 
   const dial=(cls,name,forTxt,body,tips,isRec)=>`
@@ -687,11 +689,11 @@ $("#btnGen").onclick=()=>{
       <li>อยากแก้เพิ่ม → กลับมาปรับค่าในแอพนี้ แล้ว generate ใหม่ + แนบต้นฉบับใหม่</li>
     </ol>
   </div>
-  ${dial("d-gpt","GPT","ChatGPT · GPT-image — lock geometry แข็งสุด (ทดสอบ 9/10)",P.gpt,
+  ${dial("d-gpt","GPT","ChatGPT · GPT-image — lock geometry แข็งสุด (ทดสอบจริง 2 รอบ ~9/10)",P.gpt,
     `<b>Tips:</b> ใช้ใน ChatGPT แนบรูปแล้ววางได้เลย · ถ้าเรียกผ่าน API ให้ตั้ง <b>input_fidelity="high"</b> + <b>quality="high"</b>`,
-    rec==="gpt"||rec===null&&false)}
+    rec==="gpt")}
   ${dial("d-gem","GEMINI","Gemini · Nano Banana — รับ ref ได้ถึง 14 รูป",P.gem,
-    `<b>Tips:</b> Gemini ไวต่อ chain edit มาก — <b>ต้องแนบต้นฉบับใหม่ทุกรอบ</b> · ${P.styleWarn?'<b style="color:var(--red)">สไตล์วาดบน Gemini drift หนัก (ทดสอบ 4/10) — แนะนำใช้ GPT แทน</b> · ':""}จุดแข็ง: multi-reference เยอะๆ`,
+    `<b>Tips:</b> จากการทดสอบจริง Gemini drift แม้ยิงนัดเดียวแนบต้นฉบับ (~5-6/10) — <b>งาน lock จริงจังแนะนำ GPT</b> · ต้องแนบต้นฉบับใหม่ทุกรอบ · ${P.styleWarn?'<b style="color:var(--red)">สไตล์วาดบน Gemini drift หนัก (ทดสอบ 4/10) — ใช้ GPT แทน</b> · ':""}จุดแข็งของ Gemini: ลองหลายโทน/หลาย ref เร็วๆ เพื่อหาทิศทาง แล้วค่อย lock จริงด้วย GPT`,
     rec==="gem")}
   ${dial("d-gen","GENERIC","Qwen · Grok · Copilot · AI image อื่นๆ",P.gen,
     `<b>Tips:</b> โครงสร้าง CHANGE + PRESERVE ใช้ได้กับ image model ทุกค่าย · ถ้าผลเพี้ยน ให้ลดจำนวนคำสั่ง CHANGE ลงเหลือทีละเรื่อง`,
@@ -699,6 +701,17 @@ $("#btnGen").onclick=()=>{
   <div class="checklist">
     <h3>📎 CHECKLIST รูปที่ต้องแนบ (${attach.length} รูป · เรียงลำดับ)</h3>
     <ul>${attach.map(a=>`<li>${a}</li>`).join("")}</ul>
+  </div>
+  <div class="checklist qa">
+    <h3>🔍 QA หลัง RENDER — เทียบผลกับโมเดลต้นฉบับ (จุดที่ AI ชอบเพี้ยน)</h3>
+    <ul>
+      <li>นับ<b>หน้าต่าง + ประตู</b> — จำนวน ตำแหน่ง สัดส่วน ตรงทุกบานไหม</li>
+      <li><b>ทรงหลังคา</b> — ความชัน ชายคา ทิศทางสัน ตรงเดิมไหม</li>
+      <li>นับ<b>เสา / ขั้นบันได / ระเบียง</b> — ครบและอยู่ที่เดิมไหม</li>
+      <li><b>โซนวัสดุ</b> — วัสดุลามเกินขอบเขตเดิมไหม (เช่น อิฐกินพื้นที่ปูน)</li>
+      <li><b>มุมกล้อง + สัดส่วนตัวอาคาร</b> — ไม่บีบ ไม่ยืด ไม่ถอยหลังเอง</li>
+    </ul>
+    <div class="note">❌ ข้อไหนเพี้ยน → <b>อย่าสั่งแก้ต่อในแชท</b> — กลับมา generate ใหม่ + แนบต้นฉบับใหม่ (ถ้าใช้ Gemini แล้วเพี้ยนซ้ำ → ลอง GPT)</div>
   </div>`;
   $("#out").classList.add("show");
   document.querySelectorAll(".btn-copy").forEach(b=>{
