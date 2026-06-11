@@ -89,7 +89,42 @@ src += `
 
   // pro flags exist
   const proCount=CFG.reduce((n,g)=>n+g.topics.filter(t=>t.pro).length,0);
-  A(proCount===13, "13 pro topics (have: "+proCount+")");
+  A(proCount===14, "14 pro topics (have: "+proCount+")");
+
+  // v1.2.1: MJ dialect
+  A(typeof P.mj==="string" && P.mj.includes("--style raw"), "mj dialect present + --style raw");
+  A(P.mj.includes("--ar 4:3"), "mj default --ar 4:3 (have: "+P.mj.slice(-30)+")");
+  A(P.mj.includes("walls: exposed red clay brick"), "mj includes lib material");
+  state.topics.aspect="169";
+  A(compile().mj.includes("--ar 16:9"), "mj --ar follows aspect 16:9");
+  state.topics.aspect="auto";
+
+  // v1.2.1: target includes mj
+  const targetTopic=CFG.flatMap(g=>g.topics).find(t=>t.id==="target");
+  A(targetTopic && targetTopic.opts.some(o=>o.v==="mj"), "target opts include mj");
+
+  // v1.2.1: props topic + life block
+  const propsTopic=CFG.flatMap(g=>g.topics).find(t=>t.id==="props");
+  A(propsTopic && propsTopic.pro, "props topic exists (pro)");
+  state.topics.props="outdoor";
+  A(compile().gpt.includes("outdoor furniture set"), "props frag reaches prompt");
+  state.topics.props="auto";
+
+  // v1.2.1: kelvin intlight
+  const il=CFG.flatMap(g=>g.topics).find(t=>t.id==="intlight");
+  A(il && il.opts.some(o=>/2700K/.test(o.th||"")||/2700K/.test(o.en||"")), "intlight has 2700K option");
+
+  // v1.2.1: BTYPES expanded + per-type chips
+  A(BTYPES.length>=10, "BTYPES >=10 (have: "+BTYPES.length+")");
+  A(typeof DCHIPS_BY==="object" && DCHIPS_BY.warehouse && DCHIPS_BY.house, "DCHIPS_BY has per-type chips");
+
+  // v1.2.1: MATLIB 75 + new items + position filter
+  A(MATLIB.length===75, "MATLIB 75 items (have: "+MATLIB.length+")");
+  A(matById("flamed_granite") && matById("alum_louver"), "new v1.2.1 materials present");
+  A(useOf(matById("flamed_granite")).has("pstair"), "flamed_granite usable on stairs");
+  A(useOf(matById("brick")).has("pwall") && !useOf(matById("brick")).has("pfloor"), "brick = wall only");
+  let threw2=false; try{ openLib("matFloor"); renderMMUses(); mmUse="pstair"; renderMMGrid(); mmUse="all"; }catch(e){ threw2=true; console.error(e); }
+  A(!threw2, "position filter render no throw");
 
   // openLib renders without throwing
   let threw=false;

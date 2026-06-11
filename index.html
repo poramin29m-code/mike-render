@@ -160,6 +160,7 @@ textarea{resize:vertical;min-height:64px;font-family:var(--mono);font-size:13px}
 .dialect.d-gpt .dname{color:var(--green)}
 .dialect.d-gem .dname{color:var(--cyan)}
 .dialect.d-gen .dname{color:var(--violet)}
+.dialect.d-mj .dname{color:#e8a849}
 .dialect.rec{box-shadow:0 0 0 1px rgba(127,217,98,.4)}
 .recband{font-family:var(--mono);font-size:10px;background:rgba(127,217,98,.15);color:var(--green);
   border:1px solid rgba(127,217,98,.4);border-radius:999px;padding:2px 9px}
@@ -206,15 +207,23 @@ body.basic .pro-only{display:none}
 .mm-filters{padding:10px 16px 4px;display:flex;gap:6px;flex-wrap:wrap}
 .mm-search{padding:8px 16px 10px;border-bottom:1px solid var(--line)}
 .mm-search input{font-size:13px;padding:8px 12px}
-.mm-grid{overflow:auto;padding:12px 16px 24px;display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px;-webkit-overflow-scrolling:touch}
+.mm-grid{flex:1;min-height:0;overflow-y:auto;padding:12px 16px 24px;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));grid-auto-rows:min-content;gap:10px;-webkit-overflow-scrolling:touch}
 .mcard{border:1px solid var(--line);border-radius:8px;background:var(--bg2);cursor:pointer;overflow:hidden;text-align:center;transition:all .15s}
 .mcard:hover{border-color:var(--cyan);transform:translateY(-1px)}
 .mcard.sel{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber)}
-.mcard img{width:100%;height:62px;object-fit:cover;display:block}
-.mcard .noimg{width:100%;height:62px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--faint);background:var(--panel2)}
-.mcard .mth{font-size:12px;padding:5px 6px 1px;font-weight:600;line-height:1.25}
-.mcard .men{font-family:var(--mono);font-size:9px;color:var(--faint);padding:1px 6px 7px;line-height:1.3;word-break:break-word}
+.mcard img{width:100%;height:84px;object-fit:cover;display:block}
+.mcard .noimg{width:100%;height:84px;display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--faint);background:var(--panel2)}
+.mcard .mth{font-size:13.5px;padding:7px 8px 2px;font-weight:600;line-height:1.3}
+.mcard .men{font-family:var(--mono);font-size:10.5px;color:var(--dim);padding:2px 8px 9px;line-height:1.35;word-break:break-word}
 .mm-foot{padding:8px 16px;border-top:1px dashed var(--line);font-size:11px;color:var(--faint)}
+@media(max-width:560px){
+  #mmOverlay{align-items:stretch}
+  .mm{max-height:100vh;max-height:100dvh;border-radius:0;border:none}
+  .mm-grid{grid-template-columns:repeat(2,1fr);gap:8px;padding:10px 10px 30px}
+  .mcard img,.mcard .noimg{height:96px}
+  .mcard .mth{font-size:14px}
+  .mcard .men{font-size:11px}
+}
 
 footer{margin-top:40px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--faint)}
 footer a{color:var(--faint)}
@@ -236,7 +245,7 @@ footer a{color:var(--faint)}
     <span class="ok">● OFFLINE — ประมวลผลในเครื่อง</span>
     <span>TOKEN = 0</span>
     <span>รูปไม่ออกจากเครื่อง</span>
-    <span>v1.2</span>
+    <span>v1.2.1</span>
   </div>
   <div class="modebar">
     <div class="seg" id="wtSeg"></div>
@@ -280,7 +289,7 @@ footer a{color:var(--faint)}
 <!-- ════════ OUTPUT ════════ -->
 <div id="out"></div>
 
-<footer>MIKE RENDER v1.2 · part of MIKE-OS · template engine — no AI, no server, no tracking<br>geometry-lock pattern validated 2026-06 · 2 รอบทดสอบจริง (GPT ~9/10 · Gemini ~5-6/10)<br>material thumbnails: CC0 — ambientcg.com</footer>
+<footer>MIKE RENDER v1.2.1 · part of MIKE-OS · template engine — no AI, no server, no tracking<br>geometry-lock pattern validated 2026-06 · 2 รอบทดสอบจริง (GPT ~9/10 · Gemini ~5-6/10)<br>material thumbnails: CC0 — ambientcg.com</footer>
 </div>
 
 <div class="genbar"><div class="inner">
@@ -305,7 +314,7 @@ const AUTO = {v:"auto", th:"⚙️ Auto", en:""};
 const CFG = [
 {id:"B", icon:"B", title:"เอาต์พุต", sub:"AI เป้าหมาย · สไตล์ภาพ · ระดับสมจริง", topics:[
  {id:"target", name:"🎯 AI เป้าหมาย", hint:"สร้างให้ครบทุกภาษา — เลือกเพื่อไฮไลต์ตัวที่จะใช้", opts:[
-   {v:"all", th:"ทั้งหมด", en:""}, {v:"gpt", th:"GPT / ChatGPT", en:""}, {v:"gem", th:"Gemini", en:""}, {v:"gen", th:"AI อื่นๆ (Qwen·Grok·Copilot)", en:""}], def:"all"},
+   {v:"all", th:"ทั้งหมด", en:""}, {v:"gpt", th:"GPT / ChatGPT", en:""}, {v:"gem", th:"Gemini", en:""}, {v:"mj", th:"Midjourney", en:""}, {v:"gen", th:"AI อื่นๆ (Qwen·Grok·Copilot)", en:""}], def:"all"},
  {id:"style", name:"🎨 สไตล์ภาพ", hint:"สไตล์วาด = เสี่ยง drift บน Gemini", opts:[AUTO,
    {v:"photo", th:"ภาพถ่ายจริง", en:"photorealistic architectural photography, natural materials and imperfections"},
    {v:"cg", th:"CG render คมๆ", en:"clean high-end CG architectural rendering, crisp materials"},
@@ -336,8 +345,11 @@ const CFG = [
    {v:"hard", th:"เงาคม", en:"crisp hard shadows"},
    {v:"soft", th:"เงานุ่ม", en:"soft diffused shadows"},
    {v:"min", th:"เงาน้อย", en:"minimal shadows"}]},
- {id:"intlight", name:"💡 ไฟในอาคาร", pro:true, opts:[AUTO,
-   {v:"on", th:"เปิดไฟ", en:"warm interior lights glowing through the windows"},
+ {id:"intlight", name:"💡 ไฟในอาคาร", hint:"อุณหภูมิสี (K) — ตั้งแบบเดียวกับไฟ V-Ray", pro:true, opts:[AUTO,
+   {v:"warm", th:"วอร์ม 2700K", en:"warm 2700K interior lighting glowing through the windows"},
+   {v:"warmwhite", th:"วอร์มไวท์ 3500K", en:"soft warm-white 3500K interior lighting through the windows"},
+   {v:"neutral", th:"ขาวนวล LED 4000K", en:"neutral white 4000K LED interior lighting visible through the windows"},
+   {v:"cool", th:"ขาวเย็น LED 6500K", en:"cool white 6500K LED interior lighting visible through the windows"},
    {v:"off", th:"ปิดไฟ", en:"interior lights off"}]},
  {id:"season", name:"🍃 ฤดู / ต้นไม้", pro:true, opts:[AUTO,
    {v:"lush", th:"เขียวชอุ่ม", en:"lush green tropical foliage"},
@@ -370,7 +382,7 @@ const CFG = [
    {v:"trees", th:"แนวต้นไม้", en:"backdrop of trees"},
    {v:"houses", th:"บ้านข้างเคียง", en:"neighboring houses softly out of focus in the background"}], def:"auto"},
 ]},
-{id:"E", icon:"E", title:"วัสดุ (override)", sub:"ผนัง · หลังคา · กรอบ · กระจก · พื้น/บันได · accent — 📚 คลังวัสดุ 71 รายการ + 'จาก ref'", topics:[
+{id:"E", icon:"E", title:"วัสดุ (override)", sub:"ผนัง · หลังคา · กรอบ · กระจก · พื้น/บันได · accent — 📚 คลังวัสดุ 75 รายการ + 'จาก ref'", topics:[
  {id:"matWall", name:"🧱 ผนัง", refable:true, opts:[AUTO,
    {v:"white", th:"ปูนขัดขาว", en:"smooth white painted render walls"},
    {v:"brick", th:"อิฐโชว์แนว", en:"exposed brick walls"},
@@ -422,10 +434,23 @@ const CFG = [
  {id:"people", name:"👥 คน", opts:[AUTO,
    {v:"none", th:"ไม่มีคน", en:"no people"},
    {v:"few", th:"1–2 คน", en:"one or two casually dressed people for scale"},
+   {v:"family", th:"ครอบครัว", en:"a family standing casually in front of the building"},
+   {v:"sitting", th:"คนนั่งระเบียง/ที่นั่ง", en:"a person sitting relaxed on the terrace"},
    {v:"some", th:"หลายคน", en:"a few people adding life to the scene"}]},
- {id:"cars", name:"🚗 รถ", pro:true, opts:[AUTO,
+ {id:"cars", name:"🚗 ยานพาหนะ", pro:true, opts:[AUTO,
    {v:"none", th:"ไม่มีรถ", en:"no cars"},
-   {v:"one", th:"จอด 1 คัน", en:"one modern car parked in the driveway"}]},
+   {v:"one", th:"รถเก๋ง 1 คัน", en:"one modern sedan parked in the driveway"},
+   {v:"suv", th:"SUV", en:"one modern SUV parked in the driveway"},
+   {v:"pickup", th:"กระบะ", en:"one pickup truck parked in the driveway"},
+   {v:"two", th:"2 คัน", en:"two cars parked in the driveway"},
+   {v:"moto", th:"มอเตอร์ไซค์", en:"a motorbike parked near the entrance"},
+   {v:"bike", th:"จักรยาน", en:"a bicycle leaning near the entrance"}]},
+ {id:"props", name:"🪑 ของประกอบฉาก", pro:true, opts:[AUTO,
+   {v:"none", th:"ไม่มี", en:"no extra props"},
+   {v:"outdoor", th:"ชุดโต๊ะสนาม", en:"an outdoor furniture set on the terrace"},
+   {v:"plants", th:"กระถางต้นไม้", en:"potted plants arranged near the entrance"},
+   {v:"umbrella", th:"ร่มสนาม", en:"a patio umbrella with seating"},
+   {v:"pet", th:"สัตว์เลี้ยง", en:"a pet dog in the yard"}]},
 ]},
 {id:"H", icon:"H", title:"ความเข้มงวด", sub:"ระดับการล็อกรูปทรง", topics:[
  {id:"strict", name:"🔐 โหมดล็อก geometry", hint:"STRICT = ห้ามขยับทุกองค์ประกอบ (แนะนำ)", opts:[
@@ -442,8 +467,24 @@ const BTYPES=[
  {v:"commercial", th:"อาคารพาณิชย์", en:"commercial shophouse building"},
  {v:"office", th:"สำนักงาน", en:"office building"},
  {v:"resort", th:"รีสอร์ท/วิลล่า", en:"resort villa"},
+ {v:"cafe", th:"คาเฟ่/ร้านอาหาร", en:"cafe / restaurant building"},
+ {v:"pavilion", th:"ศาลา/pavilion", en:"open pavilion structure"},
+ {v:"garage", th:"โรงจอดรถ", en:"carport / garage structure"},
+ {v:"warehouse", th:"โกดัง", en:"warehouse building"},
+ {v:"factory", th:"โรงงาน", en:"factory / industrial building"},
  {v:"other", th:"อื่นๆ", en:"building"}];
-const DCHIPS=["two-storey house","single-storey house","L-shaped plan","modern tropical style","minimal style","contemporary Thai style","emphasize the entrance porch","emphasize the courtyard","large glass openings","double-height space"];
+/* v1.2.1: guide chips เปลี่ยนตามประเภทอาคาร */
+const DCHIPS_BY={
+ house:["two-storey house","single-storey house","L-shaped plan","modern tropical style","minimal style","contemporary Thai style","emphasize the entrance porch","emphasize the courtyard","large glass openings","double-height space"],
+ commercial:["three-storey shophouse","corner unit","modern commercial facade","ground-floor retail frontage","signage band above storefront","emphasize the storefront"],
+ office:["low-rise office building","glass curtain-wall facade","modern corporate style","emphasize the main lobby entrance","rooftop terrace"],
+ resort:["single-storey pool villa","tropical resort style","emphasize the pool terrace","open-air living pavilion","thatched-roof accents"],
+ cafe:["single-storey cafe","industrial loft style","large glass storefront","emphasize the outdoor seating area","container-style structure"],
+ pavilion:["open-sided pavilion","timber post-and-beam structure","emphasize the roof form","floating roof plane"],
+ garage:["double carport","flat-roof carport","steel-frame garage","attached to the main house"],
+ warehouse:["large-span warehouse","steel portal frame","loading dock frontage","office block at the front"],
+ factory:["industrial factory building","metal sheet cladding","emphasize the front office block","ventilation monitor roof"],
+ other:["two-storey building","modern style","minimal style","emphasize the main entrance"]};
 
 /* ════════════════════════════════════════════════════════
    MATLIB v1.2 — ล่ามวัสดุ ไทย ⇄ English prompt fragment
@@ -531,8 +572,13 @@ const MATLIB=[
 {id:"frosted_glass",th:"กระจกฝ้า",en:"frosted translucent glass",cat:["glass"],img:true},
 {id:"glass_laminate",th:"กระจกลามิเนต",en:"laminated safety glass",cat:["glass"]},
 {id:"glass_louver",th:"บานเกล็ดกระจก",en:"glass louver windows",cat:["glass"]},
+/* — v1.2.1 เพิ่ม — */
+{id:"flamed_granite",th:"หินแกรนิตเผาไฟ (กันลื่น)",en:"flamed granite with anti-slip texture",cat:["stone","floor"]},
+{id:"awning",th:"กันสาดผ้าใบ",en:"fabric canvas awning",cat:["misc"]},
+{id:"alum_louver",th:"ระแนงอลูมิเนียมลายไม้",en:"wood-grain aluminum louver battens",cat:["metal","wood"]},
+{id:"upvc_frame",th:"กรอบ uPVC ขาว",en:"white uPVC window frames",cat:["metal"]},
 ];
-const CATTH={wall:"ผนัง/ฉาบ",brick:"อิฐ/บล็อก",stone:"หิน",wood:"ไม้/ระแนง",floor:"พื้น",roof:"หลังคา",metal:"โลหะ",glass:"กระจก",misc:"อื่นๆ"};
+const CATTH={wall:"ผนัง/ฉาบ",brick:"อิฐ/บล็อก",stone:"หิน",wood:"ไม้/ระแนง",floor:"พื้น",roof:"หลังคา",metal:"โลหะ/กรอบ",glass:"กระจก",misc:"อื่นๆ"};
 /* topic → หมวดที่เลือกได้ในคลัง */
 const TOPIC_LIB={
   matWall:["wall","brick","stone","wood"],
@@ -542,6 +588,10 @@ const TOPIC_LIB={
   matFloor:["floor","stone","wood"],
   matAccent:["wood","metal","stone","wall","brick","misc"]};
 const matById=id=>MATLIB.find(m=>m.id===id);
+/* v1.2.1: ตำแหน่งใช้งาน — derive จาก cat (ไม่ต้องแก้ทีละ item) */
+const USE_BY_CAT={wall:["pwall"],brick:["pwall"],stone:["pwall","pfloor","pstair"],wood:["pwall","pfloor"],floor:["pfloor","pstair"],roof:["proof"],metal:["pwall","pfence"],glass:["pwall"],misc:["pfence"]};
+const USETH={pwall:"ผนัง",pfloor:"พื้น",pstair:"บันได",proof:"หลังคา",pfence:"รั้ว/อื่นๆ"};
+const useOf=m=>{const s=new Set(); m.cat.forEach(c=>(USE_BY_CAT[c]||[]).forEach(u=>s.add(u))); return s;};
 
 /* ---------- ref roles ---------- */
 const ROLES=[
@@ -622,7 +672,7 @@ function updateBadges(){
 /* building type pills */
 BTYPES.forEach(o=>{
   const b=document.createElement("button"); b.type="button"; b.className="pill"; b.textContent=o.th; b.dataset.v=o.v;
-  b.onclick=()=>{state.btype=o.v; document.querySelectorAll("#btype .pill").forEach(x=>x.classList.toggle("on",x.dataset.v===o.v));};
+  b.onclick=()=>{state.btype=o.v; document.querySelectorAll("#btype .pill").forEach(x=>x.classList.toggle("on",x.dataset.v===o.v)); renderChips();};
   if(o.v===state.btype) b.classList.add("on");
   $("#btype").appendChild(b);
 });
@@ -632,18 +682,32 @@ const mmOv=document.createElement("div"); mmOv.id="mmOverlay";
 mmOv.innerHTML=`<div class="mm">
   <div class="mm-head"><h3 id="mmTitle">📚 คลังวัสดุ</h3><span class="sub" id="mmCount"></span><button class="mm-x" type="button" id="mmClose">✕ ปิด</button></div>
   <div class="mm-filters" id="mmFilters"></div>
+  <div class="mm-filters" id="mmUses"></div>
   <div class="mm-search"><input type="text" id="mmSearch" placeholder="🔍 ค้นหา ไทย/อังกฤษ เช่น หินขัด, terrazzo, ทรายล้าง…"></div>
   <div class="mm-grid" id="mmGrid"></div>
   <div class="mm-foot">รูปตัวอย่าง = CC0 จาก ambientCG (เฉพาะวัสดุพื้นฐาน) · วัสดุพิสดารกว่านี้ → แนบรูปจริงเป็น ref แล้วเลือก "📎 จาก ref" แทน</div>
 </div>`;
 document.body.appendChild(mmOv);
-let mmTopic=null, mmCat="all";
+let mmTopic=null, mmCat="all", mmUse="all";
 function openLib(tid){
-  mmTopic=tid; mmCat="all"; $("#mmSearch").value="";
+  mmTopic=tid; mmCat="all"; mmUse="all"; $("#mmSearch").value="";
   const tname=(()=>{for(const g of CFG){const t=g.topics.find(x=>x.id===tid);if(t)return t.name;}return "";})();
   $("#mmTitle").textContent="📚 คลังวัสดุ — "+tname.replace(/^[^\s]+\s/,"");
-  renderMMFilters(); renderMMGrid();
+  renderMMFilters(); renderMMUses(); renderMMGrid();
   mmOv.classList.add("show");
+}
+function renderMMUses(){ // v1.2.1: filter ตามตำแหน่งใช้งาน
+  const cats=TOPIC_LIB[mmTopic]||[];
+  const avail=new Set(); cats.forEach(c=>(USE_BY_CAT[c]||[]).forEach(u=>avail.add(u)));
+  const wrap=$("#mmUses"); wrap.innerHTML="";
+  if(avail.size<2) return; // ตำแหน่งเดียว (เช่น หลังคา) = ไม่ต้องโชว์แถวกรอง
+  const mk=(v,label)=>{
+    const b=document.createElement("button"); b.type="button"; b.className="pill"+(mmUse===v?" on":"");
+    b.textContent=label; b.onclick=()=>{mmUse=v; renderMMUses(); renderMMGrid();};
+    wrap.appendChild(b);
+  };
+  mk("all","📍 ทุกตำแหน่ง");
+  ["pwall","pfloor","pstair","proof","pfence"].filter(u=>avail.has(u)).forEach(u=>mk(u,USETH[u]));
 }
 function renderMMFilters(){
   const cats=TOPIC_LIB[mmTopic]||[];
@@ -663,8 +727,9 @@ function renderMMGrid(){
   const items=MATLIB.filter(m=>{
     const inTopic=m.cat.some(c=>cats.includes(c));
     const inCat=mmCat==="all"||m.cat.includes(mmCat);
+    const inUse=mmUse==="all"||useOf(m).has(mmUse); /* v1.2.1 position filter */
     const inQ=!q||m.th.toLowerCase().includes(q)||m.en.toLowerCase().includes(q)||m.id.includes(q);
-    return inTopic&&inCat&&inQ;
+    return inTopic&&inCat&&inUse&&inQ;
   });
   $("#mmCount").textContent=items.length+" รายการ";
   const g=$("#mmGrid"); g.innerHTML="";
@@ -710,11 +775,15 @@ setMode(mode);
 /* desc */
 const descEl=$("#desc");
 descEl.oninput=()=>{state.desc=descEl.value; const n=descEl.value.length; const c=$("#descCount"); c.textContent=n+" / 200"; c.classList.toggle("over",n>200);};
-DCHIPS.forEach(c=>{
-  const b=document.createElement("button"); b.type="button"; b.className="chip"; b.textContent="+ "+c;
-  b.onclick=()=>{descEl.value=(descEl.value?descEl.value.trim().replace(/,?$/,", "):"")+c; descEl.dispatchEvent(new Event("input"));};
-  $("#descChips").appendChild(b);
-});
+function renderChips(){
+  const wrap=$("#descChips"); wrap.innerHTML="";
+  (DCHIPS_BY[state.btype]||DCHIPS_BY.other).forEach(c=>{
+    const b=document.createElement("button"); b.type="button"; b.className="chip"; b.textContent="+ "+c;
+    b.onclick=()=>{descEl.value=(descEl.value?descEl.value.trim().replace(/,?$/,", "):"")+c; descEl.dispatchEvent(new Event("input"));};
+    wrap.appendChild(b);
+  });
+}
+renderChips();
 
 /* ---------- image slots (FileReader preview · local only) ---------- */
 const grid=$("#imgrid");
@@ -831,7 +900,7 @@ function compile(){
   const ctx=[frag("setting"),frag("garden"),frag("fence"),frag("ground"),frag("bg")].filter(Boolean);
   if(ctx.length) ch.push("Surroundings — "+ctx.join(", ")+".");
   // life
-  const life=[frag("figure"),frag("people"),frag("cars")].filter(Boolean);
+  const life=[frag("figure"),frag("people"),frag("cars"),frag("props")].filter(Boolean);
   if(life.length) ch.push("People & objects — "+life.join(", ")+".");
   // camera
   const cam=[frag("lens"),frag("aspect")].filter(Boolean);
@@ -883,7 +952,19 @@ ${ch.map(c=>"• "+c).join("\n")}
 
 ${preserve}`;
 
-  return {gpt,gem,gen,styleWarn,refIdx,core};
+  /* v1.2.1: Midjourney — descriptive comma-joined prompt (MJ ไม่อ่าน CHANGE/PRESERVE structure) */
+  const arMap={"169":"16:9","43":"4:3","11":"1:1","916":"9:16"};
+  const mjParts=[`architectural photography of a ${bt.en}`];
+  if(desc) mjParts.push(desc);
+  mjParts.push(style);
+  mats.forEach(m=>mjParts.push(m));
+  atmo.forEach(a=>mjParts.push(a));
+  ctx.forEach(c=>mjParts.push(c));
+  life.forEach(l=>mjParts.push(l));
+  const lensF=frag("lens"); if(lensF) mjParts.push(lensF);
+  const mj=mjParts.join(", ")+` --ar ${arMap[t.aspect]||"4:3"} --style raw`;
+
+  return {gpt,gem,gen,mj,styleWarn,refIdx,core};
 }
 
 /* ---------- output render ---------- */
@@ -924,6 +1005,9 @@ $("#btnGen").onclick=()=>{
   ${dial("d-gem","GEMINI","Gemini · Nano Banana — รับ ref ได้ถึง 14 รูป",P.gem,
     `<b>Tips:</b> จากการทดสอบจริง Gemini drift แม้ยิงนัดเดียวแนบต้นฉบับ (~5-6/10) — <b>งาน lock จริงจังแนะนำ GPT</b> · ต้องแนบต้นฉบับใหม่ทุกรอบ · ${P.styleWarn?'<b style="color:var(--red)">สไตล์วาดบน Gemini drift หนัก (ทดสอบ 4/10) — ใช้ GPT แทน</b> · ':""}จุดแข็งของ Gemini: ลองหลายโทน/หลาย ref เร็วๆ เพื่อหาทิศทาง แล้วค่อย lock จริงด้วย GPT`,
     rec==="gem")}
+  ${dial("d-mj","MIDJOURNEY","สาย render explore mood/style — prompt บรรยายล้วน",P.mj,
+    `<b>Tips:</b> MJ <b>ไม่ใช่เครื่องมือ edit</b> — geometry lock จำกัดมาก · ยึดโครงด้วย <b>--oref &lt;URL รูปโมเดล&gt; --ow 400</b> (อัพรูปโมเดลขึ้น MJ ก่อนแล้วใช้ URL นั้น) · เหมาะสำรวจโทน/วัสดุ/บรรยากาศเร็วๆ แล้วค่อย lock จริงด้วย GPT`,
+    rec==="mj")}
   ${dial("d-gen","GENERIC","Qwen · Grok · Copilot · AI image อื่นๆ",P.gen,
     `<b>Tips:</b> โครงสร้าง CHANGE + PRESERVE ใช้ได้กับ image model ทุกค่าย · ถ้าผลเพี้ยน ให้ลดจำนวนคำสั่ง CHANGE ลงเหลือทีละเรื่อง`,
     rec==="gen")}
@@ -945,7 +1029,7 @@ $("#btnGen").onclick=()=>{
   $("#out").classList.add("show");
   document.querySelectorAll(".btn-copy").forEach(b=>{
     b.onclick=()=>{
-      const map={"d-gpt":P.gpt,"d-gem":P.gem,"d-gen":P.gen};
+      const map={"d-gpt":P.gpt,"d-gem":P.gem,"d-gen":P.gen,"d-mj":P.mj};
       navigator.clipboard.writeText(map[b.dataset.copy]).then(()=>{
         b.textContent="COPIED ✓"; b.classList.add("done");
         setTimeout(()=>{b.textContent="COPY";b.classList.remove("done");},1800);
@@ -972,7 +1056,7 @@ $("#btnReset").onclick=()=>{
   try{
     const s=JSON.parse(localStorage.getItem(VER)||"null"); if(!s)return;
     if(s.topics) Object.keys(state.topics).forEach(k=>{ if(s.topics[k]&&!String(s.topics[k]).startsWith("ref")) state.topics[k]=s.topics[k]; });
-    if(s.btype){state.btype=s.btype; document.querySelectorAll("#btype .pill").forEach(x=>x.classList.toggle("on",x.dataset.v===s.btype));}
+    if(s.btype){state.btype=s.btype; document.querySelectorAll("#btype .pill").forEach(x=>x.classList.toggle("on",x.dataset.v===s.btype)); renderChips();}
     if(s.desc){state.desc=s.desc; descEl.value=s.desc; descEl.dispatchEvent(new Event("input"));}
     refreshAllPills(); updateBadges(); checkConflicts();
   }catch(e){ localStorage.removeItem(VER); }
