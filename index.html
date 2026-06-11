@@ -185,6 +185,37 @@ pre.prompt .kw{color:var(--amber);font-weight:600}
   padding:9px 18px;font-size:13px;opacity:0;pointer-events:none;transition:all .25s;z-index:99}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+/* ───── mode / work-type segments ───── */
+.modebar{display:flex;gap:10px;margin-top:12px;align-items:center;flex-wrap:wrap}
+.seg{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;font-family:var(--mono);font-size:11px}
+.seg button{background:none;border:none;color:var(--dim);padding:5px 14px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all .15s}
+.seg button.on{background:rgba(255,180,84,.15);color:var(--amber);font-weight:700}
+.seg button.soon{opacity:.4}
+.seg .sep{width:1px;background:var(--line)}
+body.basic .pro-only{display:none}
+.modehint{font-size:11px;color:var(--faint)}
+
+/* ───── material library modal ───── */
+#mmOverlay{position:fixed;inset:0;background:rgba(11,14,20,.86);z-index:200;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(3px)}
+#mmOverlay.show{display:flex}
+.mm{background:var(--panel);border:1px solid var(--line2);border-bottom:none;border-radius:18px 18px 0 0;max-width:980px;width:100%;max-height:86vh;display:flex;flex-direction:column;animation:rise .25s ease}
+.mm-head{padding:13px 16px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center}
+.mm-head h3{font-family:var(--mono);font-size:14px;color:var(--amber);letter-spacing:.5px;flex:1}
+.mm-head .sub{font-size:12px;color:var(--faint)}
+.mm-x{background:var(--bg2);border:1px solid var(--line2);color:var(--red);border-radius:8px;font-family:var(--mono);font-size:13px;padding:4px 12px;cursor:pointer}
+.mm-filters{padding:10px 16px 4px;display:flex;gap:6px;flex-wrap:wrap}
+.mm-search{padding:8px 16px 10px;border-bottom:1px solid var(--line)}
+.mm-search input{font-size:13px;padding:8px 12px}
+.mm-grid{overflow:auto;padding:12px 16px 24px;display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px;-webkit-overflow-scrolling:touch}
+.mcard{border:1px solid var(--line);border-radius:8px;background:var(--bg2);cursor:pointer;overflow:hidden;text-align:center;transition:all .15s}
+.mcard:hover{border-color:var(--cyan);transform:translateY(-1px)}
+.mcard.sel{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber)}
+.mcard img{width:100%;height:62px;object-fit:cover;display:block}
+.mcard .noimg{width:100%;height:62px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--faint);background:var(--panel2)}
+.mcard .mth{font-size:12px;padding:5px 6px 1px;font-weight:600;line-height:1.25}
+.mcard .men{font-family:var(--mono);font-size:9px;color:var(--faint);padding:1px 6px 7px;line-height:1.3;word-break:break-word}
+.mm-foot{padding:8px 16px;border-top:1px dashed var(--line);font-size:11px;color:var(--faint)}
+
 footer{margin-top:40px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--faint)}
 footer a{color:var(--faint)}
 @media(max-width:560px){
@@ -205,7 +236,12 @@ footer a{color:var(--faint)}
     <span class="ok">● OFFLINE — ประมวลผลในเครื่อง</span>
     <span>TOKEN = 0</span>
     <span>รูปไม่ออกจากเครื่อง</span>
-    <span>v1.1</span>
+    <span>v1.2</span>
+  </div>
+  <div class="modebar">
+    <div class="seg" id="wtSeg"></div>
+    <div class="seg" id="modeSeg" title="BASIC = เฉพาะหัวข้อหลัก · PRO = ครบทุกหัวข้อ"></div>
+    <span class="modehint" id="modeHint"></span>
   </div>
 </header>
 
@@ -244,7 +280,7 @@ footer a{color:var(--faint)}
 <!-- ════════ OUTPUT ════════ -->
 <div id="out"></div>
 
-<footer>MIKE RENDER v1.1 · part of MIKE-OS · template engine — no AI, no server, no tracking<br>geometry-lock pattern validated 2026-06 · 2 รอบทดสอบจริง (GPT ~9/10 · Gemini ~5-6/10)</footer>
+<footer>MIKE RENDER v1.2 · part of MIKE-OS · template engine — no AI, no server, no tracking<br>geometry-lock pattern validated 2026-06 · 2 รอบทดสอบจริง (GPT ~9/10 · Gemini ~5-6/10)<br>material thumbnails: CC0 — ambientcg.com</footer>
 </div>
 
 <div class="genbar"><div class="inner">
@@ -276,7 +312,7 @@ const CFG = [
    {v:"water", th:"สีน้ำ ⚠️", en:"loose watercolor architectural illustration, soft washes, visible paper texture", warn:true},
    {v:"pencil", th:"สเก็ตช์ดินสอ ⚠️", en:"hand-drawn pencil sketch, fine linework, light hatching", warn:true},
    {v:"diagram", th:"ไดอะแกรม ⚠️", en:"minimal white architectural diagram style, flat tones", warn:true}]},
- {id:"realism", name:"🔬 ระดับดีเทล", opts:[AUTO,
+ {id:"realism", name:"🔬 ระดับดีเทล", pro:true, opts:[AUTO,
    {v:"ultra", th:"สูงสุด", en:"ultra-detailed, photographic micro-detail, subtle weathering"},
    {v:"mid", th:"ปานกลาง", en:"moderately detailed, clean presentation look"}]},
 ]},
@@ -292,18 +328,18 @@ const CFG = [
    {v:"cloud", th:"เมฆครึ้ม", en:"overcast grey sky, soft diffuse light"},
    {v:"rain", th:"ฝนตก", en:"light rain, wet reflective ground"},
    {v:"fog", th:"หมอกบาง", en:"thin morning fog"}]},
- {id:"lightdir", name:"🧭 ทิศแสง", opts:[AUTO,
+ {id:"lightdir", name:"🧭 ทิศแสง", pro:true, opts:[AUTO,
    {v:"front", th:"แสงหน้า", en:"front-lit facade"},
    {v:"side", th:"แสงข้าง", en:"strong side lighting"},
    {v:"back", th:"แสงย้อน", en:"backlit, rim light on edges"}]},
- {id:"shadow", name:"🌓 เงา", opts:[AUTO,
+ {id:"shadow", name:"🌓 เงา", pro:true, opts:[AUTO,
    {v:"hard", th:"เงาคม", en:"crisp hard shadows"},
    {v:"soft", th:"เงานุ่ม", en:"soft diffused shadows"},
    {v:"min", th:"เงาน้อย", en:"minimal shadows"}]},
- {id:"intlight", name:"💡 ไฟในอาคาร", opts:[AUTO,
+ {id:"intlight", name:"💡 ไฟในอาคาร", pro:true, opts:[AUTO,
    {v:"on", th:"เปิดไฟ", en:"warm interior lights glowing through the windows"},
    {v:"off", th:"ปิดไฟ", en:"interior lights off"}]},
- {id:"season", name:"🍃 ฤดู / ต้นไม้", opts:[AUTO,
+ {id:"season", name:"🍃 ฤดู / ต้นไม้", pro:true, opts:[AUTO,
    {v:"lush", th:"เขียวชอุ่ม", en:"lush green tropical foliage"},
    {v:"autumn", th:"ใบไม้เปลี่ยนสี", en:"autumn foliage tones"},
    {v:"dry", th:"แล้ง", en:"dry season vegetation"}]},
@@ -319,22 +355,22 @@ const CFG = [
    {v:"trop", th:"สวนเขตร้อน", en:"landscaped tropical garden with shrubs and small trees"},
    {v:"lawn", th:"สนามหญ้าเรียบ", en:"neat green lawn"},
    {v:"minimal", th:"มินิมอล", en:"minimal landscaping, a few sculptural plants"}]},
- {id:"fence", name:"🚧 รั้ว", opts:[AUTO,
+ {id:"fence", name:"🚧 รั้ว", pro:true, opts:[AUTO,
    {v:"none", th:"ไม่มีรั้ว", en:"no fence"},
    {v:"concrete", th:"รั้วปูนเตี้ย", en:"low concrete fence"},
    {v:"steel", th:"รั้วเหล็กโปร่ง", en:"slim dark steel fence"}]},
- {id:"ground", name:"🛣️ พื้นรอบบ้าน", opts:[AUTO,
+ {id:"ground", name:"🛣️ พื้นรอบบ้าน", pro:true, opts:[AUTO,
    {v:"concrete", th:"คอนกรีต", en:"smooth concrete driveway"},
    {v:"paver", th:"บล็อกปูพื้น", en:"grey paver-block paving"},
    {v:"gravel", th:"กรวด", en:"gravel ground cover"},
    {v:"grass", th:"หญ้า", en:"grass up to the building edge"}]},
- {id:"bg", name:"🖼️ ฉากหลัง", hint:"Auto = แทนพื้นหลังเปล่าด้วยบริบทจริง", opts:[
+ {id:"bg", name:"🖼️ ฉากหลัง", hint:"Auto = แทนพื้นหลังเปล่าด้วยบริบทจริง", pro:true, opts:[
    {v:"auto", th:"⚙️ Auto (แทนที่ให้สมจริง)", en:"replace the plain background with a realistic sky and context that matches the scene"},
    {v:"sky", th:"ท้องฟ้าโล่ง", en:"open sky background"},
    {v:"trees", th:"แนวต้นไม้", en:"backdrop of trees"},
    {v:"houses", th:"บ้านข้างเคียง", en:"neighboring houses softly out of focus in the background"}], def:"auto"},
 ]},
-{id:"E", icon:"E", title:"วัสดุ (override)", sub:"ผนัง · หลังคา · กรอบ · กระจก · พื้น/บันได · accent — เลือก 'จาก ref' ได้", topics:[
+{id:"E", icon:"E", title:"วัสดุ (override)", sub:"ผนัง · หลังคา · กรอบ · กระจก · พื้น/บันได · accent — 📚 คลังวัสดุ 71 รายการ + 'จาก ref'", topics:[
  {id:"matWall", name:"🧱 ผนัง", refable:true, opts:[AUTO,
    {v:"white", th:"ปูนขัดขาว", en:"smooth white painted render walls"},
    {v:"brick", th:"อิฐโชว์แนว", en:"exposed brick walls"},
@@ -368,11 +404,11 @@ const CFG = [
  {id:"camera", name:"📷 มุมกล้อง", hint:"ล็อก = อยู่ใน PRESERVE list (แนะนำ)", opts:[
    {v:"lock", th:"🔒 ล็อกตามต้นฉบับ", en:"", lock:true},
    {v:"free", th:"ปรับ framing เล็กน้อยได้ ⚠️", en:"minor reframing of the camera is allowed", warn:true}], def:"lock"},
- {id:"lens", name:"🔭 เลนส์", opts:[AUTO,
+ {id:"lens", name:"🔭 เลนส์", pro:true, opts:[AUTO,
    {v:"wide", th:"Wide 24mm", en:"wide-angle architectural lens look (~24mm), minimal distortion"},
    {v:"normal", th:"Normal 50mm", en:"natural 50mm perspective"},
    {v:"tele", th:"Tele บีบมุม", en:"telephoto compressed perspective"}]},
- {id:"aspect", name:"🖥️ สัดส่วนภาพ", opts:[
+ {id:"aspect", name:"🖥️ สัดส่วนภาพ", pro:true, opts:[
    {v:"auto", th:"⚙️ Auto (เท่าต้นฉบับ)", en:"keep the same aspect ratio as the input image"},
    {v:"169", th:"16:9", en:"16:9 landscape aspect ratio"},
    {v:"43", th:"4:3", en:"4:3 aspect ratio"},
@@ -380,14 +416,14 @@ const CFG = [
    {v:"916", th:"9:16 แนวตั้ง", en:"9:16 vertical aspect ratio"}], def:"auto"},
 ]},
 {id:"G", icon:"G", title:"ชีวิตในภาพ", sub:"หุ่นมาตราส่วน · คน · รถ", topics:[
- {id:"figure", name:"🧍 หุ่น scale ในโมเดล", hint:"Auto = ลบออก", opts:[
+ {id:"figure", name:"🧍 หุ่น scale ในโมเดล", hint:"Auto = ลบออก", pro:true, opts:[
    {v:"auto", th:"⚙️ Auto (ลบออก)", en:"remove the placeholder scale figure"},
    {v:"keep", th:"คงไว้ (แปลงเป็นคนจริง)", en:"replace the placeholder figure with a realistic person in the same position"}], def:"auto"},
  {id:"people", name:"👥 คน", opts:[AUTO,
    {v:"none", th:"ไม่มีคน", en:"no people"},
    {v:"few", th:"1–2 คน", en:"one or two casually dressed people for scale"},
    {v:"some", th:"หลายคน", en:"a few people adding life to the scene"}]},
- {id:"cars", name:"🚗 รถ", opts:[AUTO,
+ {id:"cars", name:"🚗 รถ", pro:true, opts:[AUTO,
    {v:"none", th:"ไม่มีรถ", en:"no cars"},
    {v:"one", th:"จอด 1 คัน", en:"one modern car parked in the driveway"}]},
 ]},
@@ -395,7 +431,7 @@ const CFG = [
  {id:"strict", name:"🔐 โหมดล็อก geometry", hint:"STRICT = ห้ามขยับทุกองค์ประกอบ (แนะนำ)", opts:[
    {v:"strict", th:"🔒 STRICT", en:"", lock:true},
    {v:"relax", th:"RELAXED", en:""}], def:"strict"},
- {id:"site", name:"🏗️ รวมรูปหน้างานจริง", hint:"Phase 2 — ยังไม่เปิดใช้", opts:[
+ {id:"site", name:"🏗️ รวมรูปหน้างานจริง", hint:"v1.3 — ยังไม่เปิดใช้", pro:true, opts:[
    {v:"off", th:"ปิด (Phase 2)", en:"", dis:true}], def:"off"},
 ]},
 ];
@@ -408,6 +444,104 @@ const BTYPES=[
  {v:"resort", th:"รีสอร์ท/วิลล่า", en:"resort villa"},
  {v:"other", th:"อื่นๆ", en:"building"}];
 const DCHIPS=["two-storey house","single-storey house","L-shaped plan","modern tropical style","minimal style","contemporary Thai style","emphasize the entrance porch","emphasize the courtyard","large glass openings","double-height space"];
+
+/* ════════════════════════════════════════════════════════
+   MATLIB v1.2 — ล่ามวัสดุ ไทย ⇄ English prompt fragment
+   cat: wall ผนัง/ฉาบ · brick อิฐ/บล็อก · stone หิน · wood ไม้ · floor พื้น
+        roof หลังคา · metal โลหะ · glass กระจก · misc อื่นๆ
+   img: true = มีรูป CC0 (ambientCG) ใน mat/<id>.png — เฉพาะวัสดุพื้นฐาน
+   ════════════════════════════════════════════════════════ */
+const MATLIB=[
+/* — ผนัง / ฉาบ / ผิวปูน — */
+{id:"plaster_white",th:"ปูนฉาบเรียบทาสีขาว",en:"smooth white painted cement render",cat:["wall"],img:true},
+{id:"plaster_grey",th:"ปูนฉาบสีเทา",en:"light grey painted cement render",cat:["wall"]},
+{id:"skimcoat_loft",th:"สกิมโค้ทลอฟท์",en:"grey loft-style skim-coat plaster with subtle trowel marks",cat:["wall"]},
+{id:"concrete_raw",th:"ปูนเปลือย / คอนกรีตหล่อ",en:"raw exposed concrete with board-form texture",cat:["wall"],img:true},
+{id:"polished_concrete",th:"ขัดมัน",en:"polished concrete, smooth steel-troweled finish",cat:["wall","floor"],img:true},
+{id:"washed_sand",th:"ทรายล้าง",en:"washed-sand finish (fine exposed aggregate surface)",cat:["wall","floor"]},
+{id:"gravel_washed",th:"กรวดล้าง",en:"exposed aggregate pebble-wash finish",cat:["wall","floor"]},
+{id:"terrazzo",th:"หินขัด",en:"terrazzo with stone chips",cat:["floor","wall"],img:true},
+{id:"precast",th:"ผนัง precast",en:"precast concrete panels with clean shadow joints",cat:["wall"]},
+{id:"fiber_cement",th:"ไม้ฝา / ไฟเบอร์ซีเมนต์",en:"fiber-cement plank siding",cat:["wall"],img:true},
+{id:"acp",th:"แผ่นอลูมิเนียมคอมโพสิต (ACP)",en:"flat aluminum composite panel cladding",cat:["wall","metal"]},
+{id:"paint_dark",th:"ผนังทาสีเทาเข้ม/ดำ",en:"dark charcoal painted walls",cat:["wall"]},
+{id:"wood_siding",th:"ผนังไม้ตีซ้อนเกล็ด",en:"horizontal wood siding boards",cat:["wall","wood"],img:true},
+{id:"green_wall",th:"สวนแนวตั้ง / ไม้เลื้อย",en:"living green wall of climbing plants",cat:["wall","misc"]},
+/* — อิฐ / บล็อก — */
+{id:"brick",th:"อิฐมอญโชว์แนว",en:"exposed red clay brick with visible mortar joints",cat:["brick","wall"],img:true},
+{id:"brick_white",th:"อิฐทาสีขาว",en:"white painted brick",cat:["brick","wall"]},
+{id:"cmu_block",th:"บล็อกคอนกรีตโชว์แนว",en:"exposed grey concrete masonry blocks (CMU)",cat:["brick","wall"]},
+{id:"breeze_block",th:"บล็อกช่องลม",en:"decorative concrete ventilation breeze blocks",cat:["brick","wall","misc"]},
+{id:"glass_block",th:"บล็อกแก้ว",en:"glass block wall",cat:["glass","wall"]},
+/* — หิน — */
+{id:"stone_cladding",th:"หินกาบ / หินตกแต่งผนัง",en:"natural stacked stone cladding",cat:["stone","wall"],img:true},
+{id:"slate_dark",th:"หินกาบดำ",en:"dark slate stone cladding",cat:["stone","wall"]},
+{id:"sandstone",th:"หินทราย",en:"warm sandstone cladding",cat:["stone","wall"],img:true},
+{id:"granite",th:"หินแกรนิต",en:"polished granite",cat:["stone","floor"],img:true},
+{id:"marble",th:"หินอ่อน",en:"veined marble",cat:["stone","floor","wall"],img:true},
+{id:"travertine",th:"หินทรเวอร์ทีน",en:"travertine stone",cat:["stone","wall","floor"],img:true},
+{id:"laterite",th:"ศิลาแลง",en:"rustic laterite stone blocks",cat:["stone","wall"]},
+{id:"pebble",th:"หินกรวดแม่น้ำ",en:"river pebble ground cover",cat:["stone","floor","misc"]},
+{id:"gabion",th:"กล่องหินเกเบี้ยน",en:"gabion stone-cage wall",cat:["stone","misc"]},
+{id:"cobblestone",th:"หินคอบเบิลปูพื้น",en:"cobblestone paving",cat:["floor","stone"]},
+/* — ไม้ / ระแนง — */
+{id:"wood_teak",th:"ไม้สัก / ไม้จริงโทนอุ่น",en:"warm natural teak wood",cat:["wood"],img:true},
+{id:"wood_slats",th:"ระแนงไม้",en:"vertical wood slat battens",cat:["wood"],img:true},
+{id:"wood_alum_grain",th:"ระแนงอลูมิเนียมลายไม้",en:"wood-grain aluminum battens",cat:["wood","metal"]},
+{id:"wpc",th:"ไม้เทียม WPC",en:"wood-plastic composite (WPC) boards",cat:["wood","floor"]},
+{id:"wood_deck",th:"พื้นไม้เด็ค",en:"hardwood deck flooring",cat:["wood","floor"],img:true},
+{id:"bamboo",th:"ไม้ไผ่",en:"natural bamboo poles",cat:["wood","misc"],img:true},
+{id:"wood_charred",th:"ไม้เผา (โชวสุกิบัน)",en:"charred black wood (shou sugi ban)",cat:["wood","wall"]},
+{id:"wood_louver",th:"บานเกล็ดไม้",en:"wooden louver panels",cat:["wood"]},
+/* — พื้นภายนอก — */
+{id:"stamped_concrete",th:"คอนกรีตพิมพ์ลาย",en:"stamped concrete with stone-pattern texture",cat:["floor"]},
+{id:"paver",th:"บล็อกปูพื้น / ตัวหนอน",en:"interlocking concrete pavers",cat:["floor"],img:true},
+{id:"grass_paver",th:"บล็อกหญ้า",en:"grass-grid paver blocks with grass joints",cat:["floor","misc"]},
+{id:"granito",th:"กระเบื้องแกรนิตโต้",en:"large-format porcelain (granito) tiles",cat:["floor"]},
+{id:"terracotta_floor",th:"กระเบื้องดินเผาปูพื้น",en:"terracotta floor tiles",cat:["floor"]},
+{id:"brick_paving",th:"อิฐมอญปูพื้น",en:"clay brick paving",cat:["floor","brick"]},
+{id:"gravel",th:"กรวดโรย",en:"loose gravel ground cover",cat:["floor","misc"],img:true},
+{id:"asphalt",th:"แอสฟัลต์",en:"smooth asphalt paving",cat:["floor"],img:true},
+{id:"grass",th:"สนามหญ้า",en:"neat green lawn grass",cat:["floor","misc"],img:true},
+/* — หลังคา — */
+{id:"roof_tiles",th:"กระเบื้องคอนกรีต (ซีแพค)",en:"dark concrete roof tiles",cat:["roof"],img:true},
+{id:"clay_tiles",th:"กระเบื้องดินเผา / ว่าว",en:"terracotta clay roof tiles",cat:["roof"],img:true},
+{id:"corrugated_fc",th:"กระเบื้องลอนคู่",en:"corrugated fiber-cement roof sheets",cat:["roof"]},
+{id:"metal_sheet",th:"เมทัลชีทลอน",en:"corrugated metal sheet roof",cat:["roof","metal"],img:true},
+{id:"standing_seam",th:"หลังคา standing seam",en:"standing-seam metal roof with clean vertical ribs",cat:["roof","metal"]},
+{id:"shingles",th:"ชิงเกิ้ล (ยางมะตอย)",en:"asphalt shingle roof",cat:["roof"],img:true},
+{id:"flat_slab",th:"หลังคาแบน slab",en:"flat concrete roof slab with parapet",cat:["roof"]},
+{id:"translucent_roof",th:"แผ่นโปร่งแสง / โพลีคาร์บอเนต",en:"translucent polycarbonate roofing",cat:["roof","glass"]},
+{id:"thatch",th:"หลังคาจาก / แฝก",en:"natural thatched roof",cat:["roof"]},
+/* — โลหะ / กรอบ — */
+{id:"metal_black",th:"อะลูมิเนียม/เหล็กดำด้าน",en:"matte black powder-coated metal",cat:["metal"],img:true},
+{id:"aluminum",th:"อะลูมิเนียมอโนไดซ์เงิน",en:"brushed silver anodized aluminum",cat:["metal"],img:true},
+{id:"steel",th:"เหล็กดิบ / แผ่นเหล็ก",en:"raw industrial steel plate",cat:["metal"],img:true},
+{id:"corten",th:"เหล็กคอร์เทน (สนิมตั้งใจ)",en:"weathered corten steel with rust patina",cat:["metal"]},
+{id:"stainless",th:"สแตนเลส",en:"brushed stainless steel",cat:["metal"]},
+{id:"steel_box",th:"เหล็กกล่องดำ",en:"slim black steel box-section frames",cat:["metal"]},
+{id:"wrought_iron",th:"เหล็กดัด",en:"ornamental wrought iron",cat:["metal","misc"]},
+{id:"perforated",th:"แผ่นเหล็กเจาะรู",en:"perforated metal screen panels",cat:["metal"]},
+{id:"expanded_mesh",th:"ตะแกรงเหล็กฉีก",en:"expanded metal mesh screens",cat:["metal"]},
+/* — กระจก — */
+{id:"glass_clear",th:"กระจกเทมเปอร์ใส",en:"clear tempered glass",cat:["glass"]},
+{id:"glass_green",th:"กระจกเขียวตัดแสง",en:"green-tinted solar-control glass",cat:["glass"]},
+{id:"glass_grey",th:"กระจกสีชาดำ",en:"grey smoked glass",cat:["glass"]},
+{id:"glass_reflect",th:"กระจกสะท้อนแสง",en:"reflective coated glass",cat:["glass"]},
+{id:"frosted_glass",th:"กระจกฝ้า",en:"frosted translucent glass",cat:["glass"],img:true},
+{id:"glass_laminate",th:"กระจกลามิเนต",en:"laminated safety glass",cat:["glass"]},
+{id:"glass_louver",th:"บานเกล็ดกระจก",en:"glass louver windows",cat:["glass"]},
+];
+const CATTH={wall:"ผนัง/ฉาบ",brick:"อิฐ/บล็อก",stone:"หิน",wood:"ไม้/ระแนง",floor:"พื้น",roof:"หลังคา",metal:"โลหะ",glass:"กระจก",misc:"อื่นๆ"};
+/* topic → หมวดที่เลือกได้ในคลัง */
+const TOPIC_LIB={
+  matWall:["wall","brick","stone","wood"],
+  matRoof:["roof"],
+  matFrame:["metal","wood"],
+  matGlass:["glass"],
+  matFloor:["floor","stone","wood"],
+  matAccent:["wood","metal","stone","wall","brick","misc"]};
+const matById=id=>MATLIB.find(m=>m.id===id);
 
 /* ---------- ref roles ---------- */
 const ROLES=[
@@ -432,7 +566,7 @@ CFG.forEach(g=>{
   groupsEl.appendChild(d);
   const body=d.querySelector(".gbody");
   g.topics.forEach(t=>{
-    const tp=document.createElement("div"); tp.className="topic";
+    const tp=document.createElement("div"); tp.className="topic"+(t.pro?" pro-only":"");
     tp.innerHTML=`<div class="tlabel"><span class="name">${t.name}</span>${t.hint?`<span class="hint">${t.hint}</span>`:""}</div><div class="pills" id="p_${t.id}"></div>`;
     body.appendChild(tp);
     const pl=tp.querySelector(".pills");
@@ -444,6 +578,12 @@ CFG.forEach(g=>{
       b.onclick=()=>{state.topics[t.id]=o.v; renderPills(t); checkConflicts(); updateBadges();};
       pl.appendChild(b);
     });
+    if(TOPIC_LIB[t.id]){ // v1.2: คลังวัสดุ — ล่าม ไทย→EN + รูปประกอบ
+      const b=document.createElement("button"); b.type="button"; b.className="pill libpill"; b.dataset.v="__lib";
+      b.textContent="📚 คลังวัสดุ";
+      b.onclick=()=>openLib(t.id);
+      pl.appendChild(b);
+    }
     if(t.refable){ // "จาก ref N" pills 1-5 (guarded: only enabled if ref exists)
       for(let i=1;i<=5;i++){
         const b=document.createElement("button"); b.type="button"; b.className="pill refpill"; b.dataset.v="ref"+i; b.dataset.ref=i;
@@ -456,10 +596,18 @@ CFG.forEach(g=>{
   });
 });
 function renderPills(t){
+  const cur=state.topics[t.id];
   document.querySelectorAll(`#p_${t.id} .pill`).forEach(b=>{
-    b.classList.toggle("on", b.dataset.v===state.topics[t.id]);
+    if(b.classList.contains("libpill")){ // v1.2: lib pill shows selected material name
+      const on=String(cur).startsWith("lib:");
+      b.classList.toggle("on",on);
+      const m=on?matById(cur.slice(4)):null;
+      b.textContent=m?("📚 "+m.th):"📚 คลังวัสดุ";
+      return;
+    }
+    b.classList.toggle("on", b.dataset.v===cur);
     const opt=t.opts.find(o=>o.v===b.dataset.v);
-    if(opt&&opt.lock) b.classList.toggle("lock", b.dataset.v===state.topics[t.id]);
+    if(opt&&opt.lock) b.classList.toggle("lock", b.dataset.v===cur);
     if(b.dataset.ref){ b.classList.toggle("dis", !state.refs[b.dataset.ref-1]); }
   });
 }
@@ -478,6 +626,86 @@ BTYPES.forEach(o=>{
   if(o.v===state.btype) b.classList.add("on");
   $("#btype").appendChild(b);
 });
+
+/* ---------- v1.2: material library modal ---------- */
+const mmOv=document.createElement("div"); mmOv.id="mmOverlay";
+mmOv.innerHTML=`<div class="mm">
+  <div class="mm-head"><h3 id="mmTitle">📚 คลังวัสดุ</h3><span class="sub" id="mmCount"></span><button class="mm-x" type="button" id="mmClose">✕ ปิด</button></div>
+  <div class="mm-filters" id="mmFilters"></div>
+  <div class="mm-search"><input type="text" id="mmSearch" placeholder="🔍 ค้นหา ไทย/อังกฤษ เช่น หินขัด, terrazzo, ทรายล้าง…"></div>
+  <div class="mm-grid" id="mmGrid"></div>
+  <div class="mm-foot">รูปตัวอย่าง = CC0 จาก ambientCG (เฉพาะวัสดุพื้นฐาน) · วัสดุพิสดารกว่านี้ → แนบรูปจริงเป็น ref แล้วเลือก "📎 จาก ref" แทน</div>
+</div>`;
+document.body.appendChild(mmOv);
+let mmTopic=null, mmCat="all";
+function openLib(tid){
+  mmTopic=tid; mmCat="all"; $("#mmSearch").value="";
+  const tname=(()=>{for(const g of CFG){const t=g.topics.find(x=>x.id===tid);if(t)return t.name;}return "";})();
+  $("#mmTitle").textContent="📚 คลังวัสดุ — "+tname.replace(/^[^\s]+\s/,"");
+  renderMMFilters(); renderMMGrid();
+  mmOv.classList.add("show");
+}
+function renderMMFilters(){
+  const cats=TOPIC_LIB[mmTopic]||[];
+  const wrap=$("#mmFilters"); wrap.innerHTML="";
+  const mk=(v,label)=>{
+    const b=document.createElement("button"); b.type="button"; b.className="pill"+(mmCat===v?" on":"");
+    b.textContent=label; b.onclick=()=>{mmCat=v; renderMMFilters(); renderMMGrid();};
+    wrap.appendChild(b);
+  };
+  mk("all","ทั้งหมด");
+  cats.forEach(c=>mk(c,CATTH[c]||c));
+}
+function renderMMGrid(){
+  const cats=TOPIC_LIB[mmTopic]||[];
+  const q=$("#mmSearch").value.trim().toLowerCase();
+  const cur=state.topics[mmTopic];
+  const items=MATLIB.filter(m=>{
+    const inTopic=m.cat.some(c=>cats.includes(c));
+    const inCat=mmCat==="all"||m.cat.includes(mmCat);
+    const inQ=!q||m.th.toLowerCase().includes(q)||m.en.toLowerCase().includes(q)||m.id.includes(q);
+    return inTopic&&inCat&&inQ;
+  });
+  $("#mmCount").textContent=items.length+" รายการ";
+  const g=$("#mmGrid"); g.innerHTML="";
+  items.forEach(m=>{
+    const c=document.createElement("div"); c.className="mcard"+(cur==="lib:"+m.id?" sel":"");
+    c.innerHTML=(m.img?`<img src="mat/${m.id}.png" alt="" loading="lazy">`:`<div class="noimg">▦</div>`)
+      +`<div class="mth">${m.th}</div><div class="men">${m.en}</div>`;
+    c.onclick=()=>{
+      state.topics[mmTopic]="lib:"+m.id;
+      const t=(()=>{for(const gg of CFG){const x=gg.topics.find(y=>y.id===mmTopic);if(x)return x;}})();
+      renderPills(t); updateBadges(); mmOv.classList.remove("show");
+      toast("✓ "+m.th+" → "+m.en);
+    };
+    g.appendChild(c);
+  });
+  if(!items.length) g.innerHTML='<div style="grid-column:1/-1;color:var(--faint);font-size:13px;padding:20px;text-align:center">ไม่พบ — วัสดุเฉพาะทางให้แนบรูปจริงเป็น ref แทน</div>';
+}
+$("#mmClose").onclick=()=>mmOv.classList.remove("show");
+mmOv.onclick=e=>{ if(e.target===mmOv) mmOv.classList.remove("show"); };
+$("#mmSearch").oninput=()=>renderMMGrid();
+
+/* ---------- v1.2: work-type shell + Basic/Pro mode ---------- */
+const WTYPES=[{v:"ext",th:"🏠 EXTERIOR",on:true},{v:"int",th:"🛋️ INTERIOR"},{v:"land",th:"🌳 LANDSCAPE"}];
+WTYPES.forEach(w=>{
+  const b=document.createElement("button"); b.type="button"; b.textContent=w.th;
+  if(w.on) b.classList.add("on"); else{ b.classList.add("soon"); b.onclick=()=>toast(w.th+" — เร็วๆ นี้ (v1.4)"); }
+  $("#wtSeg").appendChild(b);
+});
+let mode=localStorage.getItem("mr-mode")||"basic";
+function setMode(m){
+  mode=m; localStorage.setItem("mr-mode",m);
+  document.body.classList.toggle("basic",m==="basic");
+  document.querySelectorAll("#modeSeg button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));
+  $("#modeHint").textContent=m==="basic"?"หัวข้อหลัก — ที่ซ่อนอยู่ใช้ค่า Auto":"ครบทุกหัวข้อ";
+}
+[["basic","BASIC"],["pro","PRO"]].forEach(([v,label])=>{
+  const b=document.createElement("button"); b.type="button"; b.textContent=label; b.dataset.m=v;
+  b.onclick=()=>setMode(v);
+  $("#modeSeg").appendChild(b);
+});
+setMode(mode);
 
 /* desc */
 const descEl=$("#desc");
@@ -557,7 +785,7 @@ function checkConflicts(){
 
 /* ---------- prompt compiler ---------- */
 function opt(tid){ for(const g of CFG){const t=g.topics.find(x=>x.id===tid); if(t) return t.opts.find(o=>o.v===state.topics[tid]);} return null; }
-function frag(tid){ const v=state.topics[tid]; if(v.startsWith("ref")) return null; const o=opt(tid); return o&&o.en?o.en:null; }
+function frag(tid){ const v=state.topics[tid]; if(v.startsWith("ref")||v.startsWith("lib:")) return null; const o=opt(tid); return o&&o.en?o.en:null; }
 
 function compile(){
   const t=state.topics;
@@ -584,7 +812,8 @@ function compile(){
   const matMap={matWall:["walls","ref"],matRoof:["roof","ref"],matFrame:["window/door frames","ref"],matGlass:["glass",null],matFloor:["entrance floor/steps","ref"],matAccent:["accent details","ref"]};
   Object.entries(matMap).forEach(([k,[label]])=>{
     const v=t[k];
-    if(v&&v.startsWith("ref")){ const n=v.slice(3); const imgNo=refIdx.indexOf(n-1)+2; mats.push(`${label}: use the material shown in image ${imgNo}`); }
+    if(v&&v.startsWith("lib:")){ const m=matById(v.slice(4)); if(m) mats.push(`${label}: ${m.en}`); } /* v1.2 MATLIB */
+    else if(v&&v.startsWith("ref")){ const n=v.slice(3); const imgNo=refIdx.indexOf(n-1)+2; mats.push(`${label}: use the material shown in image ${imgNo}`); }
     else { const f=frag(k); if(f) mats.push(f); }
   });
   if(mats.length) ch.push("Materials — "+mats.join("; ")+".");
