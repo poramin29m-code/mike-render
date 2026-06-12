@@ -33,6 +33,7 @@ global.document = {
   createElement: t => mkEl(t),
   querySelector: s => (elCache[s] = elCache[s] || mkEl()),
   querySelectorAll: () => [],
+  getElementById: id => (elCache["#"+id] = elCache["#"+id] || mkEl()), // v1.4: cats UI
   body: mkEl("body"),
 };
 global.localStorage = { _d:{}, getItem(k){return this._d[k]??null;}, setItem(k,v){this._d[k]=String(v);}, removeItem(k){delete this._d[k];} };
@@ -90,7 +91,7 @@ src += `
 
   // pro flags exist
   const proCount=CFG.reduce((n,g)=>n+g.topics.filter(t=>t.pro).length,0);
-  A(proCount===19, "19 pro topics (have: "+proCount+")");
+  A(proCount===22, "22 pro topics (have: "+proCount+")"); // v1.4: +mood +extlight +fx
 
   // v1.2.1: MJ dialect
   A(typeof P.mj==="string" && P.mj.includes("--style raw"), "mj dialect present + --style raw");
@@ -119,8 +120,8 @@ src += `
   A(BTYPES.length>=10, "BTYPES >=10 (have: "+BTYPES.length+")");
   A(typeof DCHIPS_BY==="object" && DCHIPS_BY.warehouse && DCHIPS_BY.house, "DCHIPS_BY has per-type chips");
 
-  // v1.2.1: MATLIB 75 + new items + position filter
-  A(MATLIB.length===75, "MATLIB 75 items (have: "+MATLIB.length+")");
+  // v1.2.1→v1.4: MATLIB 91 + new items + position filter
+  A(MATLIB.length===91, "MATLIB 91 items (have: "+MATLIB.length+")");
   A(matById("bamboo") && matById("acp"), "bamboo + ACP in library (family coverage)");
   A(matById("flamed_granite") && matById("alum_louver"), "new v1.2.1 materials present");
   A(useOf(matById("flamed_granite")).has("pstair"), "flamed_granite usable on stairs");
@@ -162,17 +163,21 @@ src += `
   // hex custom color
   state.topics.matWall="hex:#ff8800";
   const Ph=compile();
-  A(Ph.gpt.includes("walls: painted in exact color #FF8800 (RGB 255, 136, 0)"), "hex color → exact RGB in prompt");
+  A(Ph.gpt.includes("walls: painted in exact color #FF8800 — a vivid orange (RGB 255, 136, 0)"), "hex color → exact RGB + human name in prompt"); // v1.4 hexName
   A(frag("matWall")===null, "frag() null on hex:");
   state.topics.matWall="lib:brick";
 
-  // site composite via ref role
-  state.refs[1]="site.jpg"; state.refRoles[1]="site";
+  // v1.4: site = dedicated slot (image 2) — ref เลื่อนเป็น image 3+
+  state.site="site.jpg";
   const Ps=compile();
-  A(Ps.gpt.includes("SITE COMPOSITE: place the building from image 1"), "site role → SITE COMPOSITE block");
+  A(Ps.gpt.includes("SITE COMPOSITE: place the building from image 1 into the real site photo (image 2)"), "site slot → SITE COMPOSITE image 2");
+  A(Ps.gpt.includes("image 2 = the REAL SITE photograph"), "site declared in image roles");
+  A(Ps.gpt.includes("perspective and scale anchors") && Ps.gpt.includes("camera viewpoint MUST be that of the site photo"), "perspective anchor text present");
   A(Ps.gpt.indexOf("SITE COMPOSITE")<Ps.gpt.indexOf("Render as:"), "SITE COMPOSITE comes first in CHANGE");
-  A(ROLES.some(r=>r.v==="site"), "ROLES include site");
-  state.refs[1]=null; state.refRoles[1]="auto";
+  A(Ps.gpt.includes("image 3 = accent material reference"), "ref shifts to image 3 when site present");
+  A(!ROLES.some(r=>r.v==="site"), "site removed from ref ROLES dropdown");
+  state.site=null;
+  A(compile().gpt.includes("image 2 = accent material reference"), "ref back to image 2 when no site");
 
   // archstyle mood
   state.topics.archstyle="modern";
@@ -225,6 +230,90 @@ src += `
   A(document.body.style.overflow==="hidden", "openLib locks body scroll");
   closeLib();
   A(document.body.style.overflow==="", "closeLib restores body scroll");
+
+  /* ---------- v1.4 ---------- */
+
+  // vocab expansion: archstyle 18 + cats 2-level
+  const as=CFG.flatMap(g=>g.topics).find(t=>t.id==="archstyle");
+  A(as && as.opts.length===19, "archstyle 18 styles + AUTO (have: "+(as.opts.length-1)+")");
+  A(Array.isArray(as.cats) && as.cats.length===4, "archstyle has 4 cats");
+  A(as.cats.every(c=>c.vs.every(v=>as.opts.some(o=>o.v===v))), "every archstyle cat value maps to an opt");
+  const allCatVs=as.cats.flatMap(c=>c.vs);
+  A(as.opts.filter(o=>o.v!=="auto").every(o=>allCatVs.includes(o.v)), "every archstyle opt belongs to a cat");
+
+  // fence 2-level 16 opts
+  const fe=CFG.flatMap(g=>g.topics).find(t=>t.id==="fence");
+  A(fe && Array.isArray(fe.cats) && fe.cats.length===5, "fence has 5 cats");
+  A(fe.opts.length===17, "fence 16 opts + AUTO (have: "+(fe.opts.length-1)+")");
+  A(fe.cats.every(c=>c.vs.every(v=>fe.opts.some(o=>o.v===v))), "every fence cat value maps to an opt");
+
+  // new topics: mood / extlight / fx
+  ["mood","extlight","fx"].forEach(id=>{
+    const t2=CFG.flatMap(g=>g.topics).find(x=>x.id===id);
+    A(t2 && t2.pro, id+" topic exists (pro)");
+  });
+  state.topics.mood="cinema"; state.topics.extlight="combo"; state.topics.fx="rim";
+  const P4=compile();
+  A(P4.gpt.includes("Mood — cinematic lighting"), "mood frag reaches prompt");
+  A(P4.gpt.includes("layered exterior lighting"), "extlight frag reaches atmosphere");
+  A(P4.gpt.includes("rim light glowing"), "fx frag reaches camera block");
+  A(P4.mj.includes("cinematic lighting"), "mood reaches mj dialect");
+  state.topics.mood="auto"; state.topics.extlight="auto"; state.topics.fx="auto";
+
+  // word presets on slider topics (hybrid)
+  A(timeKey("w_golden")==="golden" && timeKey("w_civil")==="blue" && timeKey("w_night")==="night", "TIME_WORD maps to bands");
+  state.topics.time="w_golden";
+  const Pw=compile();
+  A(Pw.gpt.includes("warm golden hour light, low sun, long soft shadows"), "time word preset → en frag");
+  A(!Pw.gpt.includes("(around"), "word preset has no HH:MM");
+  state.topics.time="w_night";
+  A(compile().gpt.includes("warm interior lights glowing"), "word night triggers auto interior lights");
+  state.topics.time="w_golden"; state.topics.weather="cloud";
+  A(compile().gpt.includes("warm low sun breaking through clouds") && !compile().gpt.includes("NaN"), "conflict resolution safe with word time");
+  state.topics.time="auto"; state.topics.weather="auto";
+  state.topics.intlight="w_warm";
+  A(compile().gpt.includes("warm cozy interior lighting"), "intlight word preset → en frag");
+  state.topics.intlight="auto";
+
+  // hexName bands
+  A(hexName("#ffffff")==="near-white" && hexName("#000000")==="near-black", "hexName white/black");
+  A(hexName("#8b5a2b").includes("brown"), "hexName earth tone → brown");
+  A(hexName("#3b82f6").includes("blue"), "hexName blue");
+
+  // MATLIB v1.4 entries + interior prep
+  A(matById("zinc_patina") && matById("limewash") && matById("rammed_earth") && matById("mirror_glass"), "new exterior materials present");
+  A(matById("herringbone") && matById("oak_floor") && matById("acoustic_slat"), "interior-prep materials present");
+  A(CATTH.interior, "interior cat registered in CATTH");
+  A(TOPIC_LIB.matAccent.includes("interior"), "matAccent reaches interior items");
+  A(matById("corten").cat.includes("wall"), "corten reachable from wall topics");
+
+  // PRESET SYSTEM
+  A(Array.isArray(PRESETS) && PRESETS.length===5, "5 built-in presets");
+  A(PRESETS.every(p=>Object.entries(p.topics).every(([k,v])=>{
+    const t2=CFG.flatMap(g=>g.topics).find(x=>x.id===k);
+    return t2 && (t2.opts.some(o=>o.v===v)||t2.type==="slider");
+  })), "every preset value is a valid opt");
+  state.topics.matWall="lib:brick"; // pre-existing user value — apply must reset it
+  applyPreset(PRESETS[0]);
+  A(state.topics.time==="w_golden" && state.topics.mood==="serene", "applyPreset sets preset topics");
+  A(state.topics.matWall==="auto", "applyPreset resets non-preset topics to default");
+  A(activePreset===PRESETS[0].id, "activePreset tracked");
+  A(presetModified(PRESETS[0])===false, "freshly applied preset = not modified");
+  state.topics.weather="storm";
+  A(presetModified(PRESETS[0])===true, "changing a topic flags ✱ modified");
+  let threwP=false; try{ renderPresetBar(); }catch(e){ threwP=true; console.error(e); }
+  A(!threwP, "renderPresetBar no throw");
+  // user preset save/load roundtrip via localStorage
+  localStorage.setItem("mr-presets", JSON.stringify([{id:"u_1",th:"⭐ test",topics:{mood:"lux"}}]));
+  A(userPresets().length===1 && userPresets()[0].topics.mood==="lux", "user presets roundtrip");
+  applyPreset(userPresets()[0]);
+  A(state.topics.mood==="lux" && state.topics.time==="auto", "user preset applies + resets");
+  localStorage.removeItem("mr-presets");
+  // reset state for cleanliness
+  CFG.forEach(g=>g.topics.forEach(t=>state.topics[t.id]=t.def||"auto"));
+
+  // cats UI engine
+  A(typeof renderCatRow==="function" && typeof topicCats==="object", "cats engine present");
 
   console.log("\\nDONE");
 })();`;
