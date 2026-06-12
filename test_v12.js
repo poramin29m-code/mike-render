@@ -40,6 +40,7 @@ global.navigator = { clipboard:{writeText:()=>Promise.resolve()} };
 global.FileReader = function(){ this.readAsDataURL=()=>{}; };
 global.Event = function(n){this.name=n;};
 global.setTimeout = setTimeout; global.clearTimeout = clearTimeout;
+global.window = global; // v1.3: window.EyeDropper guard in build loop
 
 // --- append tests INTO the eval'd source (strict eval scoping) ---
 src += `
@@ -89,7 +90,7 @@ src += `
 
   // pro flags exist
   const proCount=CFG.reduce((n,g)=>n+g.topics.filter(t=>t.pro).length,0);
-  A(proCount===14, "14 pro topics (have: "+proCount+")");
+  A(proCount===19, "19 pro topics (have: "+proCount+")");
 
   // v1.2.1: MJ dialect
   A(typeof P.mj==="string" && P.mj.includes("--style raw"), "mj dialect present + --style raw");
@@ -110,9 +111,9 @@ src += `
   A(compile().gpt.includes("outdoor furniture set"), "props frag reaches prompt");
   state.topics.props="auto";
 
-  // v1.2.1: kelvin intlight
+  // v1.3: intlight is now a Kelvin slider
   const il=CFG.flatMap(g=>g.topics).find(t=>t.id==="intlight");
-  A(il && il.opts.some(o=>/2700K/.test(o.th||"")||/2700K/.test(o.en||"")), "intlight has 2700K option");
+  A(il && il.type==="slider" && il.smin===2700 && il.smax===6500, "intlight = slider 2700-6500K");
 
   // v1.2.1: BTYPES expanded + per-type chips
   A(BTYPES.length>=10, "BTYPES >=10 (have: "+BTYPES.length+")");
@@ -120,6 +121,7 @@ src += `
 
   // v1.2.1: MATLIB 75 + new items + position filter
   A(MATLIB.length===75, "MATLIB 75 items (have: "+MATLIB.length+")");
+  A(matById("bamboo") && matById("acp"), "bamboo + ACP in library (family coverage)");
   A(matById("flamed_granite") && matById("alum_louver"), "new v1.2.1 materials present");
   A(useOf(matById("flamed_granite")).has("pstair"), "flamed_granite usable on stairs");
   A(useOf(matById("brick")).has("pwall") && !useOf(matById("brick")).has("pfloor"), "brick = wall only");
@@ -134,6 +136,95 @@ src += `
   // setMode toggles
   setMode("pro"); A(localStorage.getItem("mr-mode")==="pro", "setMode persists");
   setMode("basic");
+
+  /* ---------- v1.3 ---------- */
+
+  // time slider → band frag
+  A(timeKey("17")==="golden" && timeKey("12")==="midday" && timeKey("22")==="night" && timeKey("6")==="dawn", "timeKey bands correct");
+  state.topics.time="17";
+  const P3=compile();
+  A(P3.gpt.includes("golden hour") && P3.gpt.includes("(around 17:00)"), "time slider 17 → golden + HH:MM in prompt");
+  A(hhmm("6.5")==="06:30", "hhmm half-hour format");
+  state.topics.time="22";
+  A(compile().gpt.includes("warm interior lights glowing"), "night band auto interior lights");
+  state.topics.time="auto";
+
+  // kelvin slider → frag bands
+  A(kelvinFrag("2700").startsWith("warm 2700K"), "2700 → warm");
+  A(kelvinFrag("3000").startsWith("soft warm-white"), "3000 → soft warm-white");
+  A(kelvinFrag("4000").startsWith("neutral white LED"), "4000 → neutral");
+  A(kelvinFrag("6500").startsWith("cool white LED"), "6500 → cool");
+  A(kelvinFrag("off")==="interior lights off" && kelvinFrag("auto")===null, "kelvin off/auto");
+  state.topics.intlight="3000";
+  A(compile().gpt.includes("3000K interior lighting"), "kelvin slider reaches prompt");
+  state.topics.intlight="auto";
+
+  // hex custom color
+  state.topics.matWall="hex:#ff8800";
+  const Ph=compile();
+  A(Ph.gpt.includes("walls: painted in exact color #FF8800 (RGB 255, 136, 0)"), "hex color → exact RGB in prompt");
+  A(frag("matWall")===null, "frag() null on hex:");
+  state.topics.matWall="lib:brick";
+
+  // site composite via ref role
+  state.refs[1]="site.jpg"; state.refRoles[1]="site";
+  const Ps=compile();
+  A(Ps.gpt.includes("SITE COMPOSITE: place the building from image 1"), "site role → SITE COMPOSITE block");
+  A(Ps.gpt.indexOf("SITE COMPOSITE")<Ps.gpt.indexOf("Render as:"), "SITE COMPOSITE comes first in CHANGE");
+  A(ROLES.some(r=>r.v==="site"), "ROLES include site");
+  state.refs[1]=null; state.refRoles[1]="auto";
+
+  // archstyle mood
+  state.topics.archstyle="modern";
+  A(compile().gpt.includes("Overall mood —") && compile().gpt.includes("do NOT change the building's geometry"), "archstyle mood + geometry guard");
+  state.topics.archstyle="auto";
+
+  // BT_CATS 2-level
+  A(Array.isArray(BT_CATS) && BT_CATS.length>=4, "BT_CATS categories (have: "+BT_CATS.length+")");
+  A(BTYPES.length>=18, "BTYPES flattened >=18 (have: "+BTYPES.length+")");
+  A(catOfBtype("house")==="res" && catOfBtype("hotel")==="com" && catOfBtype("school")==="pub", "catOfBtype maps correctly");
+  A(DCHIPS_BY.condo && DCHIPS_BY.hotel && DCHIPS_BY.temple, "DCHIPS_BY covers new subtypes");
+
+  // season/trees split + bg expanded
+  const trees=CFG.flatMap(g=>g.topics).find(t=>t.id==="trees");
+  A(trees && trees.pro, "trees topic split from season");
+  const bg=CFG.flatMap(g=>g.topics).find(t=>t.id==="bg");
+  A(bg && bg.opts.length>=12, "bg landscape >=12 opts (have: "+bg.opts.length+")");
+  state.topics.trees="none";
+  A(compile().gpt.includes("no vegetation"), "trees frag reaches prompt");
+  state.topics.trees="auto";
+
+  // new material topics wired
+  ["matSlat","matTerrace","matDoor","matGutter"].forEach(id=>{
+    const t2=CFG.flatMap(g=>g.topics).find(x=>x.id===id);
+    A(t2 && t2.pro && t2.refable, id+" topic exists (pro+refable)");
+    A(TOPIC_LIB[id], id+" wired into TOPIC_LIB");
+  });
+  state.topics.matGutter="lib:alum_louver"; state.topics.matGutter="auto"; // smoke
+  state.topics.matDoor="lib:teak"; // teak? may not exist — fallback below
+  if(!matById("teak")) state.topics.matDoor="auto";
+  else { A(compile().gpt.includes("main entrance door"), "matDoor lib reaches prompt"); state.topics.matDoor="auto"; }
+
+  // perspective enforcement on life block
+  state.topics.cars="parked";
+  A(compile().gpt.includes("vanishing points") && compile().gpt.includes("no pasted-on look"), "car perspective enforcement");
+  state.topics.cars="auto";
+
+  // colorpill plumbing exists
+  A(Array.isArray(COLORABLE) && COLORABLE.includes("matWall"), "COLORABLE defined");
+  A(typeof syncSliders==="function" && sliderEls.time && sliderEls.intlight, "slider engine registered time+intlight");
+
+  // conflicts use timeKey (no throw with numeric time)
+  state.topics.time="22"; state.topics.shadow="hard";
+  let threw3=false; try{ getConflicts(); }catch(e){ threw3=true; console.error(e); }
+  A(!threw3, "getConflicts handles numeric time");
+  state.topics.time="auto"; state.topics.shadow="auto";
+
+  // modal scroll lock
+  openLib("matWall");
+  A(document.body.style.overflow==="hidden", "openLib locks body scroll");
+  closeLib();
+  A(document.body.style.overflow==="", "closeLib restores body scroll");
 
   console.log("\\nDONE");
 })();`;

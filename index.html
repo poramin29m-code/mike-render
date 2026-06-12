@@ -43,6 +43,7 @@ header{padding:34px 0 10px}
 .hbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;font-family:var(--mono);font-size:11px}
 .hbar span{border:1px solid var(--line);border-radius:999px;padding:3px 10px;color:var(--dim)}
 .hbar span.ok{color:var(--green);border-color:rgba(127,217,98,.35)}
+.hbar span.ver{font-size:15px;font-weight:700;color:var(--amber);border-color:rgba(255,180,84,.4);padding:5px 16px}
 
 /* ───── group cards ───── */
 .grp{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);margin-top:14px;overflow:hidden}
@@ -188,11 +189,25 @@ pre.prompt .kw{color:var(--amber);font-weight:600}
 
 /* ───── mode / work-type segments ───── */
 .modebar{display:flex;gap:10px;margin-top:12px;align-items:center;flex-wrap:wrap}
-.seg{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;font-family:var(--mono);font-size:11px}
-.seg button{background:none;border:none;color:var(--dim);padding:5px 14px;cursor:pointer;font-family:var(--mono);font-size:11px;transition:all .15s}
+.seg{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;font-family:var(--mono);font-size:14px}
+.seg button{background:none;border:none;color:var(--dim);padding:9px 20px;cursor:pointer;font-family:var(--mono);font-size:14px;font-weight:600;transition:all .15s}
 .seg button.on{background:rgba(255,180,84,.15);color:var(--amber);font-weight:700}
 .seg button.soon{opacity:.4}
 .seg .sep{width:1px;background:var(--line)}
+/* v1.3: sliders */
+.sliderwrap{display:flex;align-items:center;gap:12px;margin-top:8px;width:100%;max-width:520px}
+.sliderwrap input[type=range]{flex:1;-webkit-appearance:none;appearance:none;height:10px;border-radius:999px;outline:none;cursor:pointer;border:1px solid var(--line)}
+.sliderwrap input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:var(--txt);border:3px solid var(--bg);box-shadow:0 0 0 1px var(--line),0 2px 8px rgba(0,0,0,.5)}
+.sliderwrap input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--txt);border:3px solid var(--bg)}
+.sliderwrap input[type=range]:disabled{opacity:.35;cursor:default}
+.sliderwrap input.k-track{background:linear-gradient(90deg,#ff8a3c 0%,#ffc878 30%,#fff6e8 55%,#dcebff 78%,#9cc4ff 100%)}
+.sliderwrap input.t-track{background:linear-gradient(90deg,#0c1430 0%,#3a4a7a 18%,#ffb454 28%,#bfe3ff 45%,#9cd2ff 58%,#ffb454 72%,#7a5a9a 80%,#0c1430 100%)}
+.sliderval{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--amber);min-width:96px;text-align:right;white-space:nowrap}
+.sliderval .em{font-size:17px;margin-right:4px}
+/* v1.3: color pill */
+.pill.colorpill{display:inline-flex;align-items:center;gap:6px}
+.pill.colorpill .sw{width:14px;height:14px;border-radius:3px;border:1px solid var(--line);display:inline-block;background:#888}
+.pill.colorpill.on{border-color:var(--amber)}
 body.basic .pro-only{display:none}
 .modehint{font-size:11px;color:var(--faint)}
 
@@ -240,12 +255,9 @@ footer a{color:var(--faint)}
 
 <header>
   <div class="brand"><span class="mk">MIKE</span> <span class="rd">RENDER</span><span class="cat">₍^. .^₎⟆</span></div>
-  <div class="tagline">ล่ามแปลภาษา <b>คน → AI</b> · สร้าง prompt สำหรับ render โมเดล 3D โดย <b>ล็อกรูปทรง 100%</b> — ห้าม AI แก้โมเดล</div>
+  <div class="tagline">ล่ามแปลภาษา <b>คน → AI</b> · สร้าง prompt สำหรับ render โมเดล 3D โดย <b>ล็อกรูปทรง 100%</b> — <b>Made by poramin29.m</b></div>
   <div class="hbar">
-    <span class="ok">● OFFLINE — ประมวลผลในเครื่อง</span>
-    <span>TOKEN = 0</span>
-    <span>รูปไม่ออกจากเครื่อง</span>
-    <span>v1.2.1</span>
+    <span class="ver">v1.3</span>
   </div>
   <div class="modebar">
     <div class="seg" id="wtSeg"></div>
@@ -266,7 +278,8 @@ footer a{color:var(--faint)}
     </div>
 
     <div class="topic">
-      <div class="tlabel"><span class="name">🏠 ประเภทอาคาร</span></div>
+      <div class="tlabel"><span class="name">🏠 ประเภทอาคาร</span><span class="hint">เลือกหมวด → ชนิดย่อย</span></div>
+      <div class="pills" id="btcat"></div>
       <div class="pills" id="btype"></div>
     </div>
 
@@ -289,7 +302,7 @@ footer a{color:var(--faint)}
 <!-- ════════ OUTPUT ════════ -->
 <div id="out"></div>
 
-<footer>MIKE RENDER v1.2.1 · part of MIKE-OS · template engine — no AI, no server, no tracking<br>geometry-lock pattern validated 2026-06 · 2 รอบทดสอบจริง (GPT ~9/10 · Gemini ~5-6/10)<br>material thumbnails: CC0 — ambientcg.com</footer>
+<footer>MIKE RENDER v1.3 · part of MIKE-OS · template engine — no AI, no server, no tracking<br>geometry-lock pattern validated 2026-06 · 2 รอบทดสอบจริง (GPT ~9/10 · Gemini ~5-6/10)<br>material thumbnails: CC0 — ambientcg.com</footer>
 </div>
 
 <div class="genbar"><div class="inner">
@@ -321,21 +334,29 @@ const CFG = [
    {v:"water", th:"สีน้ำ ⚠️", en:"loose watercolor architectural illustration, soft washes, visible paper texture", warn:true},
    {v:"pencil", th:"สเก็ตช์ดินสอ ⚠️", en:"hand-drawn pencil sketch, fine linework, light hatching", warn:true},
    {v:"diagram", th:"ไดอะแกรม ⚠️", en:"minimal white architectural diagram style, flat tones", warn:true}]},
+ {id:"archstyle", name:"🏡 สไตล์สถาปัตย์ / mood & tone", hint:"คุมโทน+วัสดุภาพรวม — ไม่แตะรูปทรง", opts:[AUTO,
+   {v:"modern", th:"โมเดิร์น", en:"modern style mood — clean lines, neutral palette, crisp materials"},
+   {v:"minimal", th:"มินิมอล", en:"minimal style mood — restrained palette, simple pure surfaces"},
+   {v:"thaicontemp", th:"ไทยประยุกต์", en:"contemporary Thai style mood — warm wood tones, deep eaves character"},
+   {v:"thaiver", th:"ไทยพื้นถิ่น/บ้านไทย", en:"Thai vernacular style mood — traditional Thai house character, timber and gable details"},
+   {v:"euro", th:"ยุโรปคลาสสิก", en:"classic European style mood — elegant moldings feel, warm stone and plaster palette"},
+   {v:"nordic", th:"นอร์ดิก/สแกนดิ", en:"Scandinavian style mood — light wood, white and grey palette, cozy simplicity"},
+   {v:"muji", th:"ญี่ปุ่น/มูจิ", en:"Japanese muji style mood — calm natural wood, soft neutral tones, zen simplicity"},
+   {v:"loft", th:"ลอฟท์/อินดัสเทรียล", en:"industrial loft style mood — raw concrete, dark steel, exposed character"},
+   {v:"tropical", th:"ทรอปิคอล/รีสอร์ท", en:"tropical resort style mood — lush greenery, natural materials, airy openness"},
+   {v:"farmhouse", th:"อเมริกัน/ฟาร์มเฮาส์", en:"American farmhouse style mood — white siding feel, warm welcoming palette"}]},
  {id:"realism", name:"🔬 ระดับดีเทล", pro:true, opts:[AUTO,
    {v:"ultra", th:"สูงสุด", en:"ultra-detailed, photographic micro-detail, subtle weathering"},
    {v:"mid", th:"ปานกลาง", en:"moderately detailed, clean presentation look"}]},
 ]},
-{id:"C", icon:"C", title:"เวลา · แสง · อากาศ", sub:"6 หัวข้อ — บรรยากาศที่ AI ทำตามได้ 100%", topics:[
- {id:"time", name:"🕐 เวลา", opts:[AUTO,
-   {v:"morning", th:"เช้า", en:"soft morning light"},
-   {v:"midday", th:"กลางวัน", en:"bright midday sunlight"},
-   {v:"golden", th:"เย็น golden hour", en:"warm golden hour light, low sun"},
-   {v:"blue", th:"โพล้เพล้ blue hour", en:"dusk blue hour, deep blue sky"},
-   {v:"night", th:"กลางคืน", en:"night scene, dark sky"}]},
+{id:"C", icon:"C", title:"เวลา · แสง · อากาศ", sub:"slider เวลา + อุณหภูมิไฟ (K) — บรรยากาศที่ AI ทำตามได้ 100%", topics:[
+ {id:"time", name:"🕐 เวลา", type:"slider", smin:0, smax:24, sstep:0.5, sclass:"t-track", hint:"เลื่อนเลือกเวลาเอง 0–24 น. หรือกด Auto", opts:[AUTO]},
  {id:"weather", name:"🌦️ สภาพอากาศ", opts:[AUTO,
    {v:"clear", th:"แดดใส", en:"clear sky"},
    {v:"cloud", th:"เมฆครึ้ม", en:"overcast grey sky, soft diffuse light"},
+   {v:"dramatic", th:"เมฆดราม่า", en:"dramatic clouds, high-contrast sky"},
    {v:"rain", th:"ฝนตก", en:"light rain, wet reflective ground"},
+   {v:"afterrain", th:"หลังฝน พื้นเปียก", en:"just after rain, wet reflective ground and fresh clear air"},
    {v:"fog", th:"หมอกบาง", en:"thin morning fog"}]},
  {id:"lightdir", name:"🧭 ทิศแสง", pro:true, opts:[AUTO,
    {v:"front", th:"แสงหน้า", en:"front-lit facade"},
@@ -345,16 +366,19 @@ const CFG = [
    {v:"hard", th:"เงาคม", en:"crisp hard shadows"},
    {v:"soft", th:"เงานุ่ม", en:"soft diffused shadows"},
    {v:"min", th:"เงาน้อย", en:"minimal shadows"}]},
- {id:"intlight", name:"💡 ไฟในอาคาร", hint:"อุณหภูมิสี (K) — ตั้งแบบเดียวกับไฟ V-Ray", pro:true, opts:[AUTO,
-   {v:"warm", th:"วอร์ม 2700K", en:"warm 2700K interior lighting glowing through the windows"},
-   {v:"warmwhite", th:"วอร์มไวท์ 3500K", en:"soft warm-white 3500K interior lighting through the windows"},
-   {v:"neutral", th:"ขาวนวล LED 4000K", en:"neutral white 4000K LED interior lighting visible through the windows"},
-   {v:"cool", th:"ขาวเย็น LED 6500K", en:"cool white 6500K LED interior lighting visible through the windows"},
+ {id:"intlight", name:"💡 ไฟในอาคาร (อุณหภูมิสี K)", hint:"เลื่อนตั้งค่า K แบบไฟ V-Ray — 🔥อุ่น ← → เย็น❄️", pro:true, type:"slider", smin:2700, smax:6500, sstep:100, sclass:"k-track", opts:[AUTO,
    {v:"off", th:"ปิดไฟ", en:"interior lights off"}]},
- {id:"season", name:"🍃 ฤดู / ต้นไม้", pro:true, opts:[AUTO,
-   {v:"lush", th:"เขียวชอุ่ม", en:"lush green tropical foliage"},
+ {id:"season", name:"🍂 ฤดูกาล", pro:true, opts:[AUTO,
+   {v:"summer", th:"ร้อน/แดดจัด", en:"hot summer season atmosphere"},
+   {v:"rainy", th:"ฝน เขียวฉ่ำ", en:"rainy season atmosphere, saturated greens"},
+   {v:"winter", th:"หนาว อากาศใส", en:"cool season, crisp clear air"},
    {v:"autumn", th:"ใบไม้เปลี่ยนสี", en:"autumn foliage tones"},
-   {v:"dry", th:"แล้ง", en:"dry season vegetation"}]},
+   {v:"dry", th:"แล้ง", en:"dry season atmosphere"}]},
+ {id:"trees", name:"🌳 ต้นไม้/พืชพรรณ", pro:true, opts:[AUTO,
+   {v:"lush", th:"เขียวชอุ่มเขตร้อน", en:"lush green tropical foliage"},
+   {v:"sparse", th:"โปร่ง ไม้ยืนต้นน้อย", en:"sparse vegetation, a few feature trees"},
+   {v:"bigtree", th:"ไม้ใหญ่เด่น 1 ต้น", en:"one large feature tree framing the building"},
+   {v:"none", th:"ไม่มีต้นไม้", en:"no vegetation"}]},
 ]},
 {id:"D", icon:"D", title:"บริบทรอบอาคาร", sub:"ที่ตั้ง · สวน · รั้ว · พื้น · ฉากหลัง", topics:[
  {id:"setting", name:"📍 ที่ตั้ง", opts:[AUTO,
@@ -376,13 +400,22 @@ const CFG = [
    {v:"paver", th:"บล็อกปูพื้น", en:"grey paver-block paving"},
    {v:"gravel", th:"กรวด", en:"gravel ground cover"},
    {v:"grass", th:"หญ้า", en:"grass up to the building edge"}]},
- {id:"bg", name:"🖼️ ฉากหลัง", hint:"Auto = แทนพื้นหลังเปล่าด้วยบริบทจริง", pro:true, opts:[
+ {id:"bg", name:"🖼️ ฉากหลัง / landscape", hint:"Auto = แทนพื้นหลังเปล่าด้วยบริบทจริง", pro:true, opts:[
    {v:"auto", th:"⚙️ Auto (แทนที่ให้สมจริง)", en:"replace the plain background with a realistic sky and context that matches the scene"},
    {v:"sky", th:"ท้องฟ้าโล่ง", en:"open sky background"},
+   {v:"city", th:"เมือง cityscape", en:"city skyline backdrop softly out of focus"},
+   {v:"country", th:"ชนบท ทุ่งนา", en:"countryside backdrop with rice fields"},
+   {v:"forest", th:"ป่าไม้", en:"dense forest backdrop"},
+   {v:"mountain", th:"ภูเขา", en:"mountain range backdrop"},
+   {v:"coastal", th:"ทะเล ชายฝั่ง", en:"coastal sea backdrop"},
+   {v:"tropical", th:"เขตร้อน ปาล์ม", en:"tropical backdrop with palm trees"},
+   {v:"desert", th:"ทะเลทราย/แห้งแล้ง", en:"arid desert backdrop"},
+   {v:"grass", th:"ทุ่งหญ้า", en:"open grassland backdrop"},
+   {v:"wetland", th:"บึง/พื้นที่ชุ่มน้ำ", en:"wetland backdrop with still water"},
    {v:"trees", th:"แนวต้นไม้", en:"backdrop of trees"},
    {v:"houses", th:"บ้านข้างเคียง", en:"neighboring houses softly out of focus in the background"}], def:"auto"},
 ]},
-{id:"E", icon:"E", title:"วัสดุ (override)", sub:"ผนัง · หลังคา · กรอบ · กระจก · พื้น/บันได · accent — 📚 คลังวัสดุ 75 รายการ + 'จาก ref'", topics:[
+{id:"E", icon:"E", title:"วัสดุ (override)", sub:"ผนัง · หลังคา · กรอบ · กระจก · พื้น/บันได · ระแนง · เฉลียง · ประตู · รางน้ำ · accent — 📚 คลังวัสดุ 75 รายการ + 🎨 สีเอง + 'จาก ref'", topics:[
  {id:"matWall", name:"🧱 ผนัง", refable:true, opts:[AUTO,
    {v:"white", th:"ปูนขัดขาว", en:"smooth white painted render walls"},
    {v:"brick", th:"อิฐโชว์แนว", en:"exposed brick walls"},
@@ -407,6 +440,22 @@ const CFG = [
    {v:"tile", th:"กระเบื้อง", en:"large-format tile entrance floor"},
    {v:"wood", th:"ไม้", en:"wood deck entrance floor"},
    {v:"stone", th:"หิน", en:"stone entrance steps"}]},
+ {id:"matSlat", name:"📏 ระแนง/facade screen", pro:true, refable:true, opts:[AUTO,
+   {v:"wood", th:"ระแนงไม้", en:"vertical wood slat screen"},
+   {v:"alum", th:"ระแนงอลูลายไม้", en:"wood-grain aluminum louver battens"},
+   {v:"steel", th:"ระแนงเหล็กดำ", en:"black steel batten screen"}]},
+ {id:"matTerrace", name:"🏖️ พื้นเฉลียง/ระเบียง", pro:true, refable:true, opts:[AUTO,
+   {v:"wood", th:"ไม้เด็ค", en:"wood decking on the terrace/balcony"},
+   {v:"tile", th:"กระเบื้อง", en:"large-format tiles on the terrace/balcony"},
+   {v:"stone", th:"หิน", en:"natural stone paving on the terrace/balcony"}]},
+ {id:"matDoor", name:"🚪 ประตูหลัก", pro:true, refable:true, opts:[AUTO,
+   {v:"wood", th:"ไม้", en:"solid wood main entrance door"},
+   {v:"steel", th:"เหล็ก/อลูดำ", en:"black steel-framed main entrance door"},
+   {v:"glass", th:"กระจกบานใหญ่", en:"full-glass pivot main entrance door"}]},
+ {id:"matGutter", name:"🌧️ รางระบายน้ำ", pro:true, refable:true, opts:[AUTO,
+   {v:"none", th:"ซ่อน/ไม่เห็น", en:"concealed rain gutters"},
+   {v:"alum", th:"อลูมิเนียมเข้ากับหลังคา", en:"slim aluminum rain gutters matching the roof color"},
+   {v:"chain", th:"โซ่น้ำฝน (rain chain)", en:"decorative rain chains instead of downspouts"}]},
  {id:"matAccent", name:"✨ วัสดุตกแต่ง (accent)", refable:true, opts:[AUTO,
    {v:"slat", th:"ระแนงไม้", en:"vertical wood slat battens as accent"},
    {v:"stone", th:"หินตกแต่ง", en:"feature stone accent wall"},
@@ -456,23 +505,42 @@ const CFG = [
  {id:"strict", name:"🔐 โหมดล็อก geometry", hint:"STRICT = ห้ามขยับทุกองค์ประกอบ (แนะนำ)", opts:[
    {v:"strict", th:"🔒 STRICT", en:"", lock:true},
    {v:"relax", th:"RELAXED", en:""}], def:"strict"},
- {id:"site", name:"🏗️ รวมรูปหน้างานจริง", hint:"v1.3 — ยังไม่เปิดใช้", pro:true, opts:[
-   {v:"off", th:"ปิด (Phase 2)", en:"", dis:true}], def:"off"},
+ {id:"site", name:"🏗️ รวมรูปหน้างานจริง", hint:"✅ ใช้ได้แล้ว (v1.3) — แนบรูปหน้างานเป็น ref → เลือกบทบาท \"📍 หน้างานจริง\" ระบบจะสั่งวางอาคารลงไซต์ให้เอง", pro:true, opts:[
+   {v:"off", th:"ใช้ผ่าน ref → 📍 หน้างานจริง", en:"", dis:true}], def:"off"},
 ]},
 ];
 
-/* ---------- building types & desc chips ---------- */
-const BTYPES=[
- {v:"house", th:"บ้านพักอาศัย", en:"residential house"},
- {v:"commercial", th:"อาคารพาณิชย์", en:"commercial shophouse building"},
- {v:"office", th:"สำนักงาน", en:"office building"},
- {v:"resort", th:"รีสอร์ท/วิลล่า", en:"resort villa"},
- {v:"cafe", th:"คาเฟ่/ร้านอาหาร", en:"cafe / restaurant building"},
- {v:"pavilion", th:"ศาลา/pavilion", en:"open pavilion structure"},
- {v:"garage", th:"โรงจอดรถ", en:"carport / garage structure"},
- {v:"warehouse", th:"โกดัง", en:"warehouse building"},
- {v:"factory", th:"โรงงาน", en:"factory / industrial building"},
- {v:"other", th:"อื่นๆ", en:"building"}];
+/* ---------- building types (v1.3: 2 ชั้น หมวด → ชนิดย่อย) & desc chips ---------- */
+const BT_CATS=[
+ {v:"res", th:"🏠 พักอาศัย", subs:[
+   {v:"house", th:"บ้านเดี่ยว", en:"single-family detached house"},
+   {v:"townhouse", th:"ทาวน์โฮม", en:"modern townhouse"},
+   {v:"condo", th:"คอนโดมิเนียม", en:"condominium building"},
+   {v:"apartment", th:"อพาร์ตเมนต์", en:"low-rise apartment building"},
+   {v:"resort", th:"รีสอร์ท/พูลวิลล่า", en:"resort villa"}]},
+ {v:"com", th:"🏬 พาณิชย์", subs:[
+   {v:"commercial", th:"ตึกแถว/อาคารพาณิชย์", en:"commercial shophouse building"},
+   {v:"office", th:"สำนักงาน", en:"office building"},
+   {v:"hotel", th:"โรงแรม", en:"hotel building"},
+   {v:"bank", th:"ธนาคาร", en:"bank branch building"},
+   {v:"cafe", th:"คาเฟ่/ร้านอาหาร", en:"cafe / restaurant building"},
+   {v:"mall", th:"ร้านค้า/คอมมูนิตี้มอลล์", en:"retail / community mall building"}]},
+ {v:"pub", th:"🏛️ สาธารณะ", subs:[
+   {v:"school", th:"โรงเรียน", en:"school building"},
+   {v:"hospital", th:"โรงพยาบาล/คลินิก", en:"hospital / clinic building"},
+   {v:"library", th:"ห้องสมุด", en:"library building"},
+   {v:"temple", th:"วัด/ศาสนสถาน", en:"Thai temple building"},
+   {v:"pavilion", th:"ศาลา/pavilion", en:"open pavilion structure"}]},
+ {v:"ind", th:"🏭 อุตสาหกรรม/เกษตร", subs:[
+   {v:"garage", th:"โรงจอดรถ", en:"carport / garage structure"},
+   {v:"warehouse", th:"โกดัง", en:"warehouse building"},
+   {v:"factory", th:"โรงงาน", en:"factory / industrial building"},
+   {v:"farm", th:"โรงเรือนเกษตร", en:"agricultural barn / greenhouse structure"}]},
+ {v:"oth", th:"อื่นๆ", subs:[
+   {v:"other", th:"อาคารทั่วไป", en:"building"}]},
+];
+const BTYPES=BT_CATS.flatMap(c=>c.subs); /* flat lookup สำหรับ compile() */
+const catOfBtype=v=>{const c=BT_CATS.find(c=>c.subs.some(s=>s.v===v)); return c?c.v:"oth";};
 /* v1.2.1: guide chips เปลี่ยนตามประเภทอาคาร */
 const DCHIPS_BY={
  house:["two-storey house","single-storey house","L-shaped plan","modern tropical style","minimal style","contemporary Thai style","emphasize the entrance porch","emphasize the courtyard","large glass openings","double-height space"],
@@ -484,6 +552,17 @@ const DCHIPS_BY={
  garage:["double carport","flat-roof carport","steel-frame garage","attached to the main house"],
  warehouse:["large-span warehouse","steel portal frame","loading dock frontage","office block at the front"],
  factory:["industrial factory building","metal sheet cladding","emphasize the front office block","ventilation monitor roof"],
+ townhouse:["three-storey townhouse","modern facade with slat screen","corner unit","emphasize the entrance"],
+ condo:["eight-storey condominium","balconies with glass railing","modern residential facade","emphasize the lobby drop-off"],
+ apartment:["four-storey apartment block","external corridor type","simple modern facade"],
+ hotel:["boutique hotel","resort-style hotel","emphasize the entrance canopy","rooftop bar terrace"],
+ bank:["single-storey bank branch","modern corporate facade","drive-through lane","prominent signage band"],
+ mall:["single-storey retail strip","community mall with plaza","covered walkway frontage"],
+ school:["two-storey school building","covered walkway connecting wings","emphasize the courtyard"],
+ hospital:["modern clinic building","clean white facade","emphasize the entrance canopy","ambulance drop-off"],
+ library:["modern library building","large reading-room glazing","emphasize the entrance plaza"],
+ temple:["Thai temple ordination hall","traditional tiered roof","emphasize the gable ornament"],
+ farm:["steel-frame greenhouse","open-sided livestock barn","translucent roof sheets"],
  other:["two-storey building","modern style","minimal style","emphasize the main entrance"]};
 
 /* ════════════════════════════════════════════════════════
@@ -586,6 +665,10 @@ const TOPIC_LIB={
   matFrame:["metal","wood"],
   matGlass:["glass"],
   matFloor:["floor","stone","wood"],
+  matSlat:["wood","metal"],
+  matTerrace:["floor","wood","stone"],
+  matDoor:["wood","metal","glass"],
+  matGutter:["metal"],
   matAccent:["wood","metal","stone","wall","brick","misc"]};
 const matById=id=>MATLIB.find(m=>m.id===id);
 /* v1.2.1: ตำแหน่งใช้งาน — derive จาก cat (ไม่ต้องแก้ทีละ item) */
@@ -599,16 +682,41 @@ const ROLES=[
  {v:"material", th:"วัสดุ/texture"},
  {v:"mood", th:"โทน/บรรยากาศ"},
  {v:"env", th:"สภาพแวดล้อม"},
- {v:"style", th:"สไตล์ภาพรวม"}];
-const ROLE_EN={auto:"reference (materials and mood only)",material:"material/texture reference only",mood:"color tone and mood reference only",env:"environment/landscape reference only",style:"overall style reference only"};
+ {v:"style", th:"สไตล์ภาพรวม"},
+ {v:"site", th:"📍 หน้างานจริง (วางอาคารลงไซต์)"}];
+const ROLE_EN={auto:"reference (materials and mood only)",material:"material/texture reference only",mood:"color tone and mood reference only",env:"environment/landscape reference only",style:"overall style reference only",site:"the REAL SITE photograph — composite the building into this site"};
 
 /* ---------- state ---------- */
 const state={btype:"house", desc:"", topics:{}, refs:[null,null,null,null,null], refRoles:["auto","auto","auto","auto","auto"], model:null};
 CFG.forEach(g=>g.topics.forEach(t=>state.topics[t.id]=t.def||"auto"));
 
+/* ---------- v1.3: slider value → prompt fragment ---------- */
+function timeKey(v){ if(v==="auto")return "auto"; const h=parseFloat(v); if(isNaN(h))return "auto";
+  if(h<5||h>=20)return "night"; if(h<7)return "dawn"; if(h<10)return "morning"; if(h<15)return "midday"; if(h<17)return "afternoon"; if(h<18.5)return "golden"; return "blue"; }
+const TIME_EN={dawn:"soft dawn light, pale early-morning sky",morning:"soft morning light",midday:"bright midday sunlight",afternoon:"warm afternoon light",golden:"warm golden hour light, low sun",blue:"dusk blue hour, deep blue sky",night:"night scene, dark sky"};
+const TIME_EMO={dawn:"🌄",morning:"🌅",midday:"☀️",afternoon:"🌤️",golden:"🌇",blue:"🌆",night:"🌙"};
+const hhmm=v=>{const h=parseFloat(v); return String(Math.floor(h)).padStart(2,"0")+":"+(h%1?"30":"00");};
+function timeFrag(v){ const k=timeKey(v); if(k==="auto")return null; return TIME_EN[k]+" (around "+hhmm(v)+")"; }
+function kelvinFrag(v){ if(v==="auto")return null; if(v==="off")return "interior lights off";
+  const k=parseInt(v); if(isNaN(k))return null;
+  const d=k<3000?"warm":k<3800?"soft warm-white":k<4800?"neutral white LED":"cool white LED";
+  return d+" "+k+"K interior lighting glowing through the windows"; }
+const SLIDER_LABEL={
+  time:v=>{const k=timeKey(v); return k==="auto"?"⚙️ Auto":`<span class="em">${TIME_EMO[k]}</span>${hhmm(v)} น.`;},
+  intlight:v=>v==="auto"?"⚙️ Auto":v==="off"?"⛔ ปิดไฟ":`<span class="em">💡</span>${v}K`};
+
 /* ---------- build UI ---------- */
 const $=s=>document.querySelector(s);
 const groupsEl=$("#groups");
+const COLORABLE=["matWall","matFrame","matAccent"]; /* v1.3: topics ที่กำหนดสี HEX ได้ */
+const sliderEls={}; /* v1.3 */
+function syncSlider(id){
+  const s=sliderEls[id]; if(!s) return;
+  const cur=state.topics[id];
+  if(!isNaN(parseFloat(cur))) s.inp.value=cur;
+  s.lab.innerHTML=(SLIDER_LABEL[id]||(v=>v))(cur);
+}
+function syncSliders(){ Object.keys(sliderEls).forEach(syncSlider); }
 CFG.forEach(g=>{
   const d=document.createElement("details"); d.className="grp"; d.id="grp"+g.id;
   if(g.id==="B"||g.id==="C") d.open=true;
@@ -634,6 +742,31 @@ CFG.forEach(g=>{
       b.onclick=()=>openLib(t.id);
       pl.appendChild(b);
     }
+    if(COLORABLE.includes(t.id)){ // v1.3: สีกำหนดเอง HEX + eyedropper
+      const b=document.createElement("button"); b.type="button"; b.className="pill colorpill"; b.dataset.v="__hex";
+      b.innerHTML='<span class="sw"></span>🎨 สีเอง';
+      const ci=document.createElement("input"); ci.type="color"; ci.style.cssText="position:absolute;width:0;height:0;opacity:0;border:0;padding:0";
+      b.appendChild(ci);
+      ci.oninput=()=>{ state.topics[t.id]="hex:"+ci.value; renderPills(t); updateBadges(); };
+      b.onclick=()=>ci.click();
+      pl.appendChild(b);
+      if(window.EyeDropper){
+        const ed=document.createElement("button"); ed.type="button"; ed.className="pill"; ed.dataset.v="__eye"; ed.textContent="💧 ดูดสีจากจอ"; ed.title="คลิกแล้วจิ้มสีจากรูปที่เปิดอยู่บนจอ";
+        ed.onclick=async()=>{ try{ const r=await new EyeDropper().open(); state.topics[t.id]="hex:"+r.sRGBHex; renderPills(t); updateBadges(); toast("✓ ดูดสี "+r.sRGBHex); }catch(e){} };
+        pl.appendChild(ed);
+      }
+    }
+    if(t.type==="slider"){ // v1.3: slider topics (เวลา · ค่า K)
+      const sw=document.createElement("div"); sw.className="sliderwrap";
+      const inp=document.createElement("input"); inp.type="range"; inp.min=t.smin; inp.max=t.smax; inp.step=t.sstep; inp.className=t.sclass||"";
+      inp.value=(t.smin+t.smax)/2;
+      const lab=document.createElement("span"); lab.className="sliderval";
+      inp.oninput=()=>{ state.topics[t.id]=String(inp.value); renderPills(t); syncSlider(t.id); checkConflicts(); updateBadges(); };
+      sw.appendChild(inp); sw.appendChild(lab);
+      tp.appendChild(sw);
+      sliderEls[t.id]={inp,lab,t};
+      syncSlider(t.id);
+    }
     if(t.refable){ // "จาก ref N" pills 1-5 (guarded: only enabled if ref exists)
       for(let i=1;i<=5;i++){
         const b=document.createElement("button"); b.type="button"; b.className="pill refpill"; b.dataset.v="ref"+i; b.dataset.ref=i;
@@ -655,6 +788,14 @@ function renderPills(t){
       b.textContent=m?("📚 "+m.th):"📚 คลังวัสดุ";
       return;
     }
+    if(b.classList.contains("colorpill")){ // v1.3: color pill shows chosen hex
+      const on=String(cur).startsWith("hex:");
+      b.classList.toggle("on",on);
+      const sw=b.querySelector(".sw"); if(sw) sw.style.background=on?cur.slice(4):"#888";
+      const lbl=on?("🎨 "+cur.slice(4).toUpperCase()):"🎨 สีเอง";
+      b.childNodes.forEach(n=>{ if(n.nodeType===3) n.textContent=lbl; });
+      return;
+    }
     b.classList.toggle("on", b.dataset.v===cur);
     const opt=t.opts.find(o=>o.v===b.dataset.v);
     if(opt&&opt.lock) b.classList.toggle("lock", b.dataset.v===cur);
@@ -669,13 +810,26 @@ function updateBadges(){
   });
 }
 
-/* building type pills */
-BTYPES.forEach(o=>{
-  const b=document.createElement("button"); b.type="button"; b.className="pill"; b.textContent=o.th; b.dataset.v=o.v;
-  b.onclick=()=>{state.btype=o.v; document.querySelectorAll("#btype .pill").forEach(x=>x.classList.toggle("on",x.dataset.v===o.v)); renderChips();};
-  if(o.v===state.btype) b.classList.add("on");
-  $("#btype").appendChild(b);
-});
+/* building type pills — v1.3: 2 ชั้น (หมวด → ชนิดย่อย) */
+let btcat=catOfBtype(state.btype);
+function renderBtCats(){
+  const wrap=$("#btcat"); wrap.innerHTML="";
+  BT_CATS.forEach(c=>{
+    const b=document.createElement("button"); b.type="button"; b.className="pill"+(btcat===c.v?" on":""); b.textContent=c.th; b.dataset.v=c.v;
+    b.onclick=()=>{ btcat=c.v; const first=c.subs[0]; state.btype=first.v; renderBtCats(); renderBtypes(); renderChips(); };
+    wrap.appendChild(b);
+  });
+}
+function renderBtypes(){
+  const wrap=$("#btype"); wrap.innerHTML="";
+  const cat=BT_CATS.find(c=>c.v===btcat)||BT_CATS[0];
+  cat.subs.forEach(o=>{
+    const b=document.createElement("button"); b.type="button"; b.className="pill"+(o.v===state.btype?" on":""); b.textContent=o.th; b.dataset.v=o.v;
+    b.onclick=()=>{state.btype=o.v; renderBtypes(); renderChips();};
+    wrap.appendChild(b);
+  });
+}
+renderBtCats(); renderBtypes();
 
 /* ---------- v1.2: material library modal ---------- */
 const mmOv=document.createElement("div"); mmOv.id="mmOverlay";
@@ -695,7 +849,9 @@ function openLib(tid){
   $("#mmTitle").textContent="📚 คลังวัสดุ — "+tname.replace(/^[^\s]+\s/,"");
   renderMMFilters(); renderMMUses(); renderMMGrid();
   mmOv.classList.add("show");
+  document.body.style.overflow="hidden"; /* v1.3 mobile scroll-lock */
 }
+function closeLib(){ mmOv.classList.remove("show"); document.body.style.overflow=""; }
 function renderMMUses(){ // v1.2.1: filter ตามตำแหน่งใช้งาน
   const cats=TOPIC_LIB[mmTopic]||[];
   const avail=new Set(); cats.forEach(c=>(USE_BY_CAT[c]||[]).forEach(u=>avail.add(u)));
@@ -740,15 +896,15 @@ function renderMMGrid(){
     c.onclick=()=>{
       state.topics[mmTopic]="lib:"+m.id;
       const t=(()=>{for(const gg of CFG){const x=gg.topics.find(y=>y.id===mmTopic);if(x)return x;}})();
-      renderPills(t); updateBadges(); mmOv.classList.remove("show");
+      renderPills(t); updateBadges(); closeLib();
       toast("✓ "+m.th+" → "+m.en);
     };
     g.appendChild(c);
   });
   if(!items.length) g.innerHTML='<div style="grid-column:1/-1;color:var(--faint);font-size:13px;padding:20px;text-align:center">ไม่พบ — วัสดุเฉพาะทางให้แนบรูปจริงเป็น ref แทน</div>';
 }
-$("#mmClose").onclick=()=>mmOv.classList.remove("show");
-mmOv.onclick=e=>{ if(e.target===mmOv) mmOv.classList.remove("show"); };
+$("#mmClose").onclick=()=>closeLib();
+mmOv.onclick=e=>{ if(e.target===mmOv) closeLib(); };
 $("#mmSearch").oninput=()=>renderMMGrid();
 
 /* ---------- v1.2: work-type shell + Basic/Pro mode ---------- */
@@ -833,12 +989,12 @@ for(let i=0;i<5;i++) grid.appendChild(makeSlot(i));
 
 /* ---------- conflict matrix (S1-S11) ---------- */
 function getConflicts(){
-  const t=state.topics, list=[];
-  if(t.time==="night"&&t.shadow==="hard")
+  const t=state.topics, list=[], tk=timeKey(t.time);
+  if(tk==="night"&&t.shadow==="hard")
     list.push({msg:"<b>กลางคืน + เงาคม</b> — ไม่มีแดดตอนกลางคืน → จะแปลงเป็น 'เงาคมจากไฟส่องอาคาร' ให้อัตโนมัติ", fix:()=>{}});
-  if((t.weather==="rain"||t.weather==="cloud")&&t.time==="golden")
-    list.push({msg:"<b>"+(t.weather==="rain"?"ฝนตก":"เมฆครึ้ม")+" + golden hour</b> — แสงทองต้องมีแดด → จะใช้ 'แสงอุ่นหลังฝน/แดดลอดเมฆ' ให้แทน"});
-  if(t.time==="night"&&t.weather==="clear"&&t.lightdir!=="auto")
+  if((t.weather==="rain"||t.weather==="afterrain"||t.weather==="cloud")&&tk==="golden")
+    list.push({msg:"<b>"+(t.weather==="cloud"?"เมฆครึ้ม":"ฝน")+" + golden hour</b> — แสงทองต้องมีแดด → จะใช้ 'แสงอุ่นหลังฝน/แดดลอดเมฆ' ให้แทน"});
+  if(tk==="night"&&t.weather==="clear"&&t.lightdir!=="auto")
     list.push({msg:"<b>กลางคืน + ทิศแสงแดด</b> — จะตีความเป็นทิศของไฟ/แสงจันทร์แทน"});
   if((t.style==="water"||t.style==="pencil"||t.style==="diagram"))
     list.push({msg:"<b>สไตล์วาด + Gemini</b> — จากการทดสอบจริง Gemini drift หนักกับสไตล์วาด (4/10) · <b>แนะนำใช้ GPT</b> (ผ่าน 8.5/10)"});
@@ -854,7 +1010,10 @@ function checkConflicts(){
 
 /* ---------- prompt compiler ---------- */
 function opt(tid){ for(const g of CFG){const t=g.topics.find(x=>x.id===tid); if(t) return t.opts.find(o=>o.v===state.topics[tid]);} return null; }
-function frag(tid){ const v=state.topics[tid]; if(v.startsWith("ref")||v.startsWith("lib:")) return null; const o=opt(tid); return o&&o.en?o.en:null; }
+function frag(tid){ const v=state.topics[tid]; if(v.startsWith("ref")||v.startsWith("lib:")||v.startsWith("hex:")) return null;
+  if(tid==="time") return timeFrag(v);
+  if(tid==="intlight") return kelvinFrag(v);
+  const o=opt(tid); return o&&o.en?o.en:null; }
 
 function compile(){
   const t=state.topics;
@@ -865,43 +1024,51 @@ function compile(){
     let role=ROLE_EN[state.refRoles[i]];
     // material slots pointing at this ref override role text
     const matUse=[];
-    const matNames={matWall:"wall material",matRoof:"roof material",matFrame:"frame material",matFloor:"floor/steps material",matAccent:"accent material"};
+    const matNames={matWall:"wall material",matRoof:"roof material",matFrame:"frame material",matFloor:"floor/steps material",matSlat:"facade batten material",matTerrace:"terrace floor material",matDoor:"entrance door material",matGutter:"rain gutter material",matAccent:"accent material"};
     Object.entries(matNames).forEach(([k2,n])=>{ if(t[k2]==="ref"+(i+1)) matUse.push(n); });
     if(matUse.length) role=matUse.join(" + ")+" reference — copy only the material/texture, nothing else";
     roles.push(`image ${k+2} = ${role}.`);
   });
 
+  /* — v1.3: site composite (ref ที่ role = site) — */
+  const siteRef=refIdx.find(i=>state.refRoles[i]==="site");
+  const siteImgNo=siteRef!==undefined?refIdx.indexOf(siteRef)+2:null;
+
   /* — CHANGE block (compressed: only non-auto, priority order) — */
   const ch=[];
-  // style/realism
+  if(siteImgNo) ch.push(`SITE COMPOSITE: place the building from image 1 into the real site photo (image ${siteImgNo}) — match that photo's camera perspective, scale, lighting direction and shadows; ground the building naturally with correct ground contact (no floating); keep the site's surroundings unchanged except where the building stands.`);
+  // style/realism + archstyle mood
   const style=frag("style")||"photorealistic architectural photography, natural materials";
   ch.push("Render as: "+style+(frag("realism")?", "+frag("realism"):"")+".");
-  // materials (incl. ref-based)
+  if(frag("archstyle")) ch.push("Overall mood — "+frag("archstyle")+" (apply through materials, colors, lighting and surroundings only — do NOT change the building's geometry).");
+  // materials (incl. ref-based + hex color)
   const mats=[];
-  const matMap={matWall:["walls","ref"],matRoof:["roof","ref"],matFrame:["window/door frames","ref"],matGlass:["glass",null],matFloor:["entrance floor/steps","ref"],matAccent:["accent details","ref"]};
+  const matMap={matWall:["walls","ref"],matRoof:["roof","ref"],matFrame:["window/door frames","ref"],matGlass:["glass",null],matFloor:["entrance floor/steps","ref"],matSlat:["facade battens/louvers","ref"],matTerrace:["terrace/balcony floor","ref"],matDoor:["main entrance door","ref"],matGutter:["rain gutters","ref"],matAccent:["accent details","ref"]};
   Object.entries(matMap).forEach(([k,[label]])=>{
     const v=t[k];
     if(v&&v.startsWith("lib:")){ const m=matById(v.slice(4)); if(m) mats.push(`${label}: ${m.en}`); } /* v1.2 MATLIB */
+    else if(v&&v.startsWith("hex:")){ const hx=v.slice(4).toUpperCase(); const r=parseInt(hx.slice(1,3),16),g2=parseInt(hx.slice(3,5),16),bl=parseInt(hx.slice(5,7),16); mats.push(`${label}: painted in exact color ${hx} (RGB ${r}, ${g2}, ${bl})`); } /* v1.3 color */
     else if(v&&v.startsWith("ref")){ const n=v.slice(3); const imgNo=refIdx.indexOf(n-1)+2; mats.push(`${label}: use the material shown in image ${imgNo}`); }
     else { const f=frag(k); if(f) mats.push(f); }
   });
   if(mats.length) ch.push("Materials — "+mats.join("; ")+".");
-  // light & atmosphere (with conflict auto-resolution)
+  // light & atmosphere (with conflict auto-resolution) — v1.3: time = slider → timeKey()
+  const tk=timeKey(t.time);
   const atmo=[];
   let timeF=frag("time"), weatherF=frag("weather"), shadowF=frag("shadow"), dirF=frag("lightdir");
-  if(t.time==="night"&&t.shadow==="hard") shadowF="crisp shadows cast by exterior building lights";
-  if(t.weather==="rain"&&t.time==="golden"){ timeF="warm low evening light breaking through after rain"; }
-  if(t.weather==="cloud"&&t.time==="golden"){ timeF="warm low sun breaking through clouds"; }
-  if(t.time==="night"&&dirF) dirF=dirF.replace("lit","lit (by artificial/moon light)");
+  if(tk==="night"&&t.shadow==="hard") shadowF="crisp shadows cast by exterior building lights";
+  if((t.weather==="rain"||t.weather==="afterrain")&&tk==="golden"){ timeF="warm low evening light breaking through after rain (around "+hhmm(t.time)+")"; }
+  if(t.weather==="cloud"&&tk==="golden"){ timeF="warm low sun breaking through clouds (around "+hhmm(t.time)+")"; }
+  if(tk==="night"&&dirF) dirF=dirF.replace("lit","lit (by artificial/moon light)");
   [timeF,weatherF,dirF,shadowF,frag("intlight"),frag("season")].forEach(f=>{if(f)atmo.push(f);});
-  if(t.time==="night"&&t.intlight==="auto") atmo.push("warm interior lights glowing through the windows");
+  if(tk==="night"&&t.intlight==="auto") atmo.push("warm interior lights glowing through the windows");
   if(atmo.length) ch.push("Lighting & atmosphere — "+atmo.join(", ")+".");
   // context
-  const ctx=[frag("setting"),frag("garden"),frag("fence"),frag("ground"),frag("bg")].filter(Boolean);
+  const ctx=[frag("setting"),frag("garden"),frag("trees"),frag("fence"),frag("ground"),frag("bg")].filter(Boolean);
   if(ctx.length) ch.push("Surroundings — "+ctx.join(", ")+".");
-  // life
+  // life — v1.3: บัครถ perspective → บังคับ match ฉาก
   const life=[frag("figure"),frag("people"),frag("cars"),frag("props")].filter(Boolean);
-  if(life.length) ch.push("People & objects — "+life.join(", ")+".");
+  if(life.length) ch.push("People & objects — "+life.join(", ")+" — every added person/vehicle/object MUST match the scene's camera perspective, vanishing points, scale, ground plane and lighting (no pasted-on look).");
   // camera
   const cam=[frag("lens"),frag("aspect")].filter(Boolean);
   if(t.camera==="free") cam.unshift("minor reframing allowed");
@@ -1047,16 +1214,15 @@ $("#btnSave").onclick=()=>{
 };
 $("#btnReset").onclick=()=>{
   CFG.forEach(g=>g.topics.forEach(t=>state.topics[t.id]=t.def||"auto"));
-  state.btype="house"; state.desc=""; descEl.value=""; descEl.dispatchEvent(new Event("input"));
-  document.querySelectorAll("#btype .pill").forEach(x=>x.classList.toggle("on",x.dataset.v==="house"));
-  refreshAllPills(); updateBadges(); checkConflicts();
+  state.btype="house"; btcat="res"; renderBtCats(); renderBtypes(); state.desc=""; descEl.value=""; descEl.dispatchEvent(new Event("input"));
+  refreshAllPills(); updateBadges(); checkConflicts(); syncSliders();
   toast("รีเซ็ตทุกค่ากลับ Auto แล้ว (รูปยังอยู่)");
 };
 (function load(){
   try{
     const s=JSON.parse(localStorage.getItem(VER)||"null"); if(!s)return;
     if(s.topics) Object.keys(state.topics).forEach(k=>{ if(s.topics[k]&&!String(s.topics[k]).startsWith("ref")) state.topics[k]=s.topics[k]; });
-    if(s.btype){state.btype=s.btype; document.querySelectorAll("#btype .pill").forEach(x=>x.classList.toggle("on",x.dataset.v===s.btype)); renderChips();}
+    if(s.btype&&BTYPES.some(b=>b.v===s.btype)){state.btype=s.btype; btcat=catOfBtype(s.btype); renderBtCats(); renderBtypes(); renderChips();}
     if(s.desc){state.desc=s.desc; descEl.value=s.desc; descEl.dispatchEvent(new Event("input"));}
     refreshAllPills(); updateBadges(); checkConflicts();
   }catch(e){ localStorage.removeItem(VER); }
