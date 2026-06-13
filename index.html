@@ -92,6 +92,11 @@ header{padding:34px 0 10px}
 .pill.prepill{border-color:rgba(199,166,255,.4);color:var(--violet)}
 .pill.prepill.on{background:rgba(199,166,255,.12);border-color:var(--violet);color:var(--violet);font-weight:600}
 .pill.prepill .px{margin-left:6px;color:var(--red);font-family:var(--mono);font-size:10px}
+/* v1.4.1: passport group accent */
+#grpPP{border-color:rgba(57,186,230,.45);background:linear-gradient(180deg,rgba(57,186,230,.05),transparent 60%)}
+#grpPP>summary .gi.pp{background:var(--cyan)}
+#grpPP input[type=text]{font-family:var(--mono);font-size:13px}
+.ppseg{flex-wrap:wrap}
 
 /* ───── inputs ───── */
 textarea,input[type=text],select{
@@ -272,7 +277,8 @@ footer a{color:var(--faint)}
   <div class="brand"><span class="mk">MIKE</span> <span class="rd">RENDER</span><span class="cat">₍^. .^₎⟆</span></div>
   <div class="tagline">ล่ามแปลภาษา <b>คน → AI</b> · สร้าง prompt สำหรับ render โมเดล 3D โดย <b>ล็อกรูปทรง 100%</b> — <b>Made by poramin29.m</b></div>
   <div class="hbar">
-    <span class="ver">v1.4</span>
+    <span class="ver">v1.4.1</span>
+    <span class="ok">🎫 PASSPORT lock</span>
   </div>
   <div class="modebar">
     <div class="seg" id="wtSeg"></div>
@@ -312,6 +318,27 @@ footer a{color:var(--faint)}
 <!-- v1.4: preset bar — จุดเริ่มเร็วสุด ตั้งหลายค่าในคลิกเดียว แล้วปรับต่อได้ -->
 <div id="presetBar"></div>
 
+<!-- v1.4.1: PASSPORT — ล็อกหุ่น+เสื้อ ข้ามมุม/ข้ามการแก้ -->
+<details class="grp" open id="grpPP">
+  <summary><span class="gi pp">🎫</span><span class="gt">PASSPORT — ล็อกหุ่น + เสื้อ ข้ามมุม<span class="gsub">ตั้งครั้งเดียว → ทุกมุม/ทุกการแก้ใช้สเปกเดียวกัน (หุ่นลองเสื้อ)</span></span><span class="chev">▶</span></summary>
+  <div class="gbody">
+    <div class="topic">
+      <div class="tlabel"><span class="name">🆔 ชื่อ/รหัสอาคาร</span><span class="hint">ใช้อ้างตัวเดิมข้ามทุก render</span></div>
+      <input type="text" id="ppName" placeholder="เช่น Baan-Riverside / House-A" maxlength="40">
+    </div>
+    <div class="topic">
+      <div class="tlabel"><span class="name">🧱 Massing / รูปทรงคงที่</span><span class="hint">บรรยายทรงที่ไม่เปลี่ยน (ทางเลือก · EN)</span></div>
+      <input type="text" id="ppMassing" placeholder="เช่น two-storey L-shaped, gable roof, double-height living" maxlength="160">
+    </div>
+    <div class="topic">
+      <div class="tlabel"><span class="name">🎯 โหมด render</span><span class="hint">หุ่นตัวเดิม — เปลี่ยนมุม / เปลี่ยนเสื้อทีละชิ้น</span></div>
+      <div class="seg ppseg" id="ppMode"></div>
+      <div class="pills" id="ppEdit" style="margin-top:10px"></div>
+      <div class="note" id="ppNote"></div>
+    </div>
+  </div>
+</details>
+
 <!-- groups B–H injected by JS -->
 <div id="groups"></div>
 
@@ -320,7 +347,7 @@ footer a{color:var(--faint)}
 <!-- ════════ OUTPUT ════════ -->
 <div id="out"></div>
 
-<footer>MIKE RENDER v1.4 · part of MIKE-OS · template engine — no AI, no server, no tracking<br>geometry-lock pattern validated 2026-06 · 2 รอบทดสอบจริง (GPT ~9/10 · Gemini ~5-6/10)<br>material thumbnails: CC0 — ambientcg.com</footer>
+<footer>MIKE RENDER v1.4.1 · part of MIKE-OS · template engine — no AI, no server, no tracking<br>geometry-lock pattern validated 2026-06 · 2 รอบทดสอบจริง (GPT ~9/10 · Gemini ~5-6/10)<br>material thumbnails: CC0 — ambientcg.com</footer>
 </div>
 
 <div class="genbar"><div class="inner">
@@ -800,7 +827,9 @@ const ROLE_EN={auto:"reference (materials and mood only)",material:"material/tex
 
 /* ---------- state ---------- */
 /* v1.4: site = ช่อง dedicated (เดิม v1.3 เป็น ref role) — site มีรูป → site = image 2, refs เริ่ม image 3 */
-const state={btype:"house", desc:"", topics:{}, refs:[null,null,null,null,null], refRoles:["auto","auto","auto","auto","auto"], model:null, site:null};
+const state={btype:"house", desc:"", topics:{}, refs:[null,null,null,null,null], refRoles:["auto","auto","auto","auto","auto"], model:null, site:null,
+  /* v1.4.1: PASSPORT — identity ของ "หุ่น+เสื้อ" ที่ฉีด verbatim ทุกมุม/ทุกการแก้ */
+  passport:{name:"", massing:"", mode:"new", editKeys:[]}};
 CFG.forEach(g=>g.topics.forEach(t=>state.topics[t.id]=t.def||"auto"));
 
 /* ---------- v1.3: slider value → prompt fragment ---------- */
@@ -955,6 +984,7 @@ function updateBadges(){
     const el=$("#bdg"+g.id); el.textContent=n?`ปรับ ${n}`:""; el.style.display=n?"":"none";
   });
   renderPresetBar(); /* v1.4: refresh ✱ modified indicator */
+  if(typeof renderPPEdit==="function") renderPPEdit(); /* v1.4.1: refresh W# edit list */
 }
 
 /* ---------- v1.4: PRESET SYSTEM ----------
@@ -1016,6 +1046,63 @@ function renderPresetBar(){
   bar.appendChild(s);
 }
 renderPresetBar();
+
+/* ---------- v1.4.1: PASSPORT ENGINE ----------
+   หุ่น = FORM (ชื่อ+massing+geometry แช่แข็ง) · เสื้อ = MATERIAL SCHEDULE (W1/W2…)
+   ฉีด verbatim ทุก render → ล็อก identity ข้ามมุม · mode: new/view/edit (master+delta) */
+const MAT_LABEL={matWall:"walls",matRoof:"roof",matFrame:"window/door frames",matGlass:"glass",matFloor:"entrance floor/steps",matSlat:"facade battens/louvers",matTerrace:"terrace/balcony floor",matDoor:"main entrance door",matGutter:"rain gutters",matAccent:"accent details"};
+const MAT_ORDER=["matWall","matRoof","matFrame","matGlass","matFloor","matSlat","matTerrace","matDoor","matGutter","matAccent"];
+/* แปลงค่า material topic → en (เหมือน logic เดิมใน compile — ใช้ร่วม UI+compile) */
+function buildSchedule(refIdx,refBase){
+  const out=[];
+  MAT_ORDER.forEach(k=>{
+    const v=state.topics[k]; let en=null, pre=true; /* pre = ใส่ "label:" นำหน้าใน CHANGE line (lib/hex/ref) · plain opt = bare (รักษา behavior เดิม) */
+    if(v&&v.startsWith("lib:")){ const m=matById(v.slice(4)); if(m) en=m.en; }
+    else if(v&&v.startsWith("hex:")){ const hx=v.slice(4).toUpperCase(); const r=parseInt(hx.slice(1,3),16),g2=parseInt(hx.slice(3,5),16),bl=parseInt(hx.slice(5,7),16); en=`painted in exact color ${hx} — a ${hexName(hx)} (RGB ${r}, ${g2}, ${bl}) — match this color faithfully at full saturation, do not wash it out`; }
+    else if(v&&v.startsWith("ref")){ const n=v.slice(3); const imgNo=refIdx.indexOf(n-1)+refBase; en=`use the material shown in image ${imgNo}`; }
+    else { const f=frag(k); if(f){ en=f; pre=false; } }
+    if(en){ const label=MAT_LABEL[k]; out.push({tid:k,label,en,mats:pre?`${label}: ${en}`:en}); }
+  });
+  return out.map((s,i)=>Object.assign(s,{key:"W"+(i+1)}));
+}
+function currentSchedule(){ const refIdx=[]; state.refs.forEach((r,i)=>{if(r)refIdx.push(i);}); return buildSchedule(refIdx, state.site?3:2); }
+
+const PPMODES=[{v:"new",th:"🆕 NEW"},{v:"view",th:"🔄 มุมเพิ่ม"},{v:"edit",th:"👕 แก้เสื้อ"}];
+function renderPPMode(){
+  const seg=$("#ppMode"); if(!seg) return; seg.innerHTML="";
+  PPMODES.forEach(m=>{
+    const b=document.createElement("button"); b.type="button"; b.textContent=m.th;
+    if(state.passport.mode===m.v) b.classList.add("on");
+    b.onclick=()=>{ state.passport.mode=m.v; renderPPMode(); renderPPEdit(); };
+    seg.appendChild(b);
+  });
+}
+function renderPPEdit(){
+  const wrap=$("#ppEdit"), note=$("#ppNote"); if(!wrap||!note) return;
+  wrap.innerHTML="";
+  if(state.passport.mode!=="edit"){
+    wrap.style.display="none";
+    note.textContent = state.passport.mode==="view"
+      ? "🔄 มุมเพิ่ม: render หุ่น+เสื้อชุดเดิมเป๊ะ เปลี่ยนแค่มุมกล้อง — แนบรูป render รอบก่อน (master) เป็น ref ด้วย"
+      : "🆕 NEW: render รอบแรก = ตั้งหุ่น+เสื้อ (master) — รอบถัดไปค่อยใช้ 'มุมเพิ่ม / แก้เสื้อ' เพื่อล็อกให้เหมือนเดิม";
+    return;
+  }
+  wrap.style.display="";
+  const sch=currentSchedule();
+  if(!sch.length){ note.textContent="👕 ยังไม่มีวัสดุในสเปก — เลือกวัสดุก่อน (กลุ่ม D · วัสดุ)"; return; }
+  note.textContent="👕 แก้เสื้อ: เลือกวัสดุ (W#) ที่จะเปลี่ยน — ที่เหลือถูกล็อกให้เหมือน render เดิมเป๊ะ";
+  const ek=new Set(state.passport.editKeys||[]);
+  sch.forEach(s=>{
+    const b=document.createElement("button"); b.type="button";
+    b.className="pill"+(ek.has(s.tid)?" on":"");
+    b.textContent=s.key+" · "+s.label;
+    b.onclick=()=>{ const e=new Set(state.passport.editKeys||[]); e.has(s.tid)?e.delete(s.tid):e.add(s.tid); state.passport.editKeys=[...e]; renderPPEdit(); };
+    wrap.appendChild(b);
+  });
+}
+$("#ppName").oninput=e=>{ state.passport.name=e.target.value; };
+$("#ppMassing").oninput=e=>{ state.passport.massing=e.target.value; };
+renderPPMode(); renderPPEdit();
 
 /* building type pills — v1.3: 2 ชั้น (หมวด → ชนิดย่อย) */
 let btcat=catOfBtype(state.btype);
@@ -1118,7 +1205,7 @@ $("#mmSearch").oninput=()=>renderMMGrid();
 const WTYPES=[{v:"ext",th:"🏠 EXTERIOR",on:true},{v:"int",th:"🛋️ INTERIOR"},{v:"land",th:"🌳 LANDSCAPE"}];
 WTYPES.forEach(w=>{
   const b=document.createElement("button"); b.type="button"; b.textContent=w.th;
-  if(w.on) b.classList.add("on"); else{ b.classList.add("soon"); b.onclick=()=>toast(w.th+" — เร็วๆ นี้ (v1.5)"); }
+  if(w.on) b.classList.add("on"); else{ b.classList.add("soon"); b.onclick=()=>toast(w.th+" — เร็วๆ นี้ (v1.4.2)"); }
   $("#wtSeg").appendChild(b);
 });
 let mode=localStorage.getItem("mr-mode")||"basic";
@@ -1266,16 +1353,9 @@ function compile(){
   ch.push("Render as: "+style+(frag("realism")?", "+frag("realism"):"")+".");
   if(frag("archstyle")) ch.push("Overall mood — "+frag("archstyle")+" (apply through materials, colors, lighting and surroundings only — do NOT change the building's geometry).");
   if(frag("mood")) ch.push("Mood — "+frag("mood")+"."); /* v1.4 */
-  // materials (incl. ref-based + hex color)
-  const mats=[];
-  const matMap={matWall:["walls","ref"],matRoof:["roof","ref"],matFrame:["window/door frames","ref"],matGlass:["glass",null],matFloor:["entrance floor/steps","ref"],matSlat:["facade battens/louvers","ref"],matTerrace:["terrace/balcony floor","ref"],matDoor:["main entrance door","ref"],matGutter:["rain gutters","ref"],matAccent:["accent details","ref"]};
-  Object.entries(matMap).forEach(([k,[label]])=>{
-    const v=t[k];
-    if(v&&v.startsWith("lib:")){ const m=matById(v.slice(4)); if(m) mats.push(`${label}: ${m.en}`); } /* v1.2 MATLIB */
-    else if(v&&v.startsWith("hex:")){ const hx=v.slice(4).toUpperCase(); const r=parseInt(hx.slice(1,3),16),g2=parseInt(hx.slice(3,5),16),bl=parseInt(hx.slice(5,7),16); mats.push(`${label}: painted in exact color ${hx} — a ${hexName(hx)} (RGB ${r}, ${g2}, ${bl}) — match this color faithfully at full saturation, do not wash it out`); } /* v1.3 color · v1.4 +ชื่อสี anchor */
-    else if(v&&v.startsWith("ref")){ const n=v.slice(3); const imgNo=refIdx.indexOf(n-1)+refBase; mats.push(`${label}: use the material shown in image ${imgNo}`); }
-    else { const f=frag(k); if(f) mats.push(f); }
-  });
+  // materials (incl. ref-based + hex color) — v1.4.1: ผ่าน buildSchedule (schedule ใช้ร่วม PASSPORT)
+  const schedule=buildSchedule(refIdx,refBase);
+  const mats=schedule.map(s=>s.mats);
   if(mats.length) ch.push("Materials — "+mats.join("; ")+".");
   // light & atmosphere (with conflict auto-resolution) — v1.3: time = slider → timeKey()
   const tk=timeKey(t.time);
@@ -1310,13 +1390,31 @@ function compile(){
   let desc=state.desc.trim().slice(0,200);
   const subj=`This is an untextured 3D model of a ${bt.en}${desc?" — "+desc:""}.`;
 
-  const core={subj,roles,ch,preserve};
+  /* — v1.4.1: BUILDING PASSPORT — identity (หุ่น+เสื้อ) ฉีด verbatim ทุกมุม/ทุกการแก้ — */
+  const pp=state.passport||{name:"",massing:"",mode:"new",editKeys:[]};
+  const ppId=(pp.name&&pp.name.trim())?pp.name.trim():"Building-1";
+  const formBits=[bt.en]; if(pp.massing&&pp.massing.trim()) formBits.push(pp.massing.trim()); if(desc) formBits.push(desc);
+  const ppLines=[`=== BUILDING PASSPORT · "${ppId}" (identical in every view — do not reinterpret) ===`,
+    `FORM (locked): ${formBits.join(", ")}. Geometry, massing, proportions, every window/door position and size, and the roof form are FIXED exactly as in image 1.`];
+  if(schedule.length){ ppLines.push("MATERIAL SCHEDULE (locked — apply each material only to its surface and keep it byte-identical across every view):");
+    schedule.forEach(s=>ppLines.push(`  ${s.key} — ${s.label}: ${s.en}`)); }
+  const passportBlock=ppLines.join("\n");
+  let modeLine="";
+  if(pp.mode==="view") modeLine=`SAME BUILDING — NEW CAMERA ANGLE: image 1 and the passport above define a building that was already rendered. This is ANOTHER camera viewpoint of that exact same building. Reproduce the building and EVERY material in the passport identically — ONLY the camera angle/position changes. Do not redesign, recolor, re-material, add or remove anything.`;
+  else if(pp.mode==="edit"){ const ek=pp.editKeys||[]; const chg=schedule.filter(s=>ek.includes(s.tid));
+    const chgTxt=chg.length?chg.map(s=>`${s.key} (${s.label}) → ${s.en}`).join("; "):"the selected material only";
+    modeLine=`SINGLE-ITEM EDIT: reproduce the building EXACTLY as in the passport and identical to the previous render. Change ONLY: ${chgTxt}. Every OTHER material, all geometry, the lighting and the camera must stay identical to the previous render.`; }
+  const ppBlock=passportBlock+(modeLine?"\n\n"+modeLine:"");
+
+  const core={subj,roles,ch,preserve,passport:passportBlock,modeLine};
 
   /* — dialects — */
   const styleWarn=(t.style==="water"||t.style==="pencil"||t.style==="diagram");
   const gpt =
 `${subj}
 ${roles.join("\n")}
+
+${ppBlock}
 
 TASK — render this model. CHANGE ONLY the following:
 ${ch.map(c=>"• "+c).join("\n")}
@@ -1330,6 +1428,8 @@ Keep the result coherent and realistic for the chosen style.`;
 ${subj}
 ${roles.join("\n")}
 
+${ppBlock}
+
 Render this model. Change ONLY the following, and keep everything else unchanged:
 ${ch.map(c=>"• "+c).join("\n")}
 
@@ -1339,6 +1439,8 @@ Keep everything else exactly unchanged from image 1.`;
   const gen =
 `${subj}
 ${roles.join("\n")}
+
+${ppBlock}
 
 Image-to-image render. CHANGE ONLY:
 ${ch.map(c=>"• "+c).join("\n")}
@@ -1350,6 +1452,7 @@ ${preserve}`;
   const mjParts=[`architectural photography of a ${bt.en}`];
   if(desc) mjParts.push(desc);
   mjParts.push(style);
+  if(pp.name&&pp.name.trim()) mjParts.push(`consistent design identity "${ppId}" — keep form and all materials identical across renders`); /* v1.4.1 */
   const moodF=frag("mood"); if(moodF) mjParts.push(moodF); /* v1.4 */
   mats.forEach(m=>mjParts.push(m));
   atmo.forEach(a=>mjParts.push(a));
@@ -1378,6 +1481,7 @@ $("#btnGen").onclick=()=>{
   const attach=["รูปโมเดล 3D ต้นฉบับ (= image 1) — แนบใหม่ทุกครั้ง"]
     .concat(state.site?[`รูปหน้างานจริง (= image 2) — ${state.site}`]:[])
     .concat(P.refIdx.map((i,k)=>`รูป ref ${i+1} (= image ${k+refBase}) — ${state.refs[i]}`));
+  if(state.passport.mode==="view"||state.passport.mode==="edit") attach.push("⭐ รูป render รอบก่อน (master) — แนบเป็น ref เพิ่ม เพื่อยึดเสื้อ/รายละเอียดเดิม (PASSPORT mode)");
 
   const dial=(cls,name,forTxt,body,tips,isRec)=>`
   <div class="dialect ${cls} ${isRec?"rec":""}">
@@ -1440,8 +1544,8 @@ $("#btnGen").onclick=()=>{
 
 /* ---------- save / reset / toast ---------- */
 $("#btnSave").onclick=()=>{
-  localStorage.setItem(VER, JSON.stringify({btype:state.btype,desc:state.desc,topics:state.topics,refRoles:state.refRoles}));
-  toast("💾 บันทึก preset ในเครื่องแล้ว");
+  localStorage.setItem(VER, JSON.stringify({btype:state.btype,desc:state.desc,topics:state.topics,refRoles:state.refRoles,passport:{name:state.passport.name,massing:state.passport.massing}}));
+  toast("💾 บันทึก preset + passport ในเครื่องแล้ว");
 };
 $("#btnReset").onclick=()=>{
   activePreset=null; /* v1.4 */
@@ -1456,6 +1560,8 @@ $("#btnReset").onclick=()=>{
     if(s.topics) Object.keys(state.topics).forEach(k=>{ if(s.topics[k]&&!String(s.topics[k]).startsWith("ref")) state.topics[k]=s.topics[k]; });
     if(s.btype&&BTYPES.some(b=>b.v===s.btype)){state.btype=s.btype; btcat=catOfBtype(s.btype); renderBtCats(); renderBtypes(); renderChips();}
     if(s.desc){state.desc=s.desc; descEl.value=s.desc; descEl.dispatchEvent(new Event("input"));}
+    if(s.passport){ state.passport.name=s.passport.name||""; state.passport.massing=s.passport.massing||"";
+      const n=$("#ppName"),m=$("#ppMassing"); if(n)n.value=state.passport.name; if(m)m.value=state.passport.massing; }
     refreshAllPills(); updateBadges(); checkConflicts();
   }catch(e){ localStorage.removeItem(VER); }
 })();

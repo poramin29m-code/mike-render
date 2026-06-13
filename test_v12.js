@@ -315,6 +315,63 @@ src += `
   // cats UI engine
   A(typeof renderCatRow==="function" && typeof topicCats==="object", "cats engine present");
 
+  /* ---------- v1.4.1: PASSPORT ENGINE ---------- */
+  A(state.passport && state.passport.mode==="new" && Array.isArray(state.passport.editKeys), "state.passport initialised (mode new)");
+
+  // buildSchedule keys + legacy Materials-line formatting preserved
+  CFG.forEach(g=>g.topics.forEach(t=>state.topics[t.id]=t.def||"auto"));
+  state.model="model.png";
+  state.topics.matWall="brick";          // plain opt → bare in Materials line (no "walls:")
+  state.topics.matFloor="lib:terrazzo";  // lib → "label: en"
+  const sch=currentSchedule();
+  A(sch.length===2 && sch[0].key==="W1" && sch[1].key==="W2", "schedule keyed W1/W2 in order");
+  A(sch[0].label==="walls" && sch[0].en==="exposed brick walls", "schedule resolves plain opt en");
+  A(sch[0].mats==="exposed brick walls", "legacy Materials line stays bare for plain opt (no label:)");
+  A(sch[1].mats==="entrance floor/steps: terrazzo with stone chips", "lib item keeps 'label:' prefix in Materials line");
+  const Ppp=compile();
+  A(Ppp.gpt.includes("Materials — exposed brick walls; entrance floor/steps: terrazzo with stone chips"), "compile Materials line matches legacy formatting");
+
+  // passport block: id + form + keyed schedule, in all 3 structured dialects
+  A(Ppp.gpt.includes('=== BUILDING PASSPORT · "Building-1"'), "default passport id = Building-1");
+  A(Ppp.gpt.includes("FORM (locked):") && Ppp.gpt.includes("single-family detached house"), "passport FORM block present");
+  A(Ppp.gpt.includes("MATERIAL SCHEDULE (locked") && Ppp.gpt.includes("W1 — walls: exposed brick walls"), "passport material schedule keyed W1");
+  A(Ppp.gem.includes("BUILDING PASSPORT") && Ppp.gen.includes("BUILDING PASSPORT"), "passport injected into gem + gen too");
+
+  // named passport → id in prompt + mj identity token (named only)
+  state.passport.name="Baan-A";
+  const Pn=compile();
+  A(Pn.gpt.includes('=== BUILDING PASSPORT · "Baan-A"'), "passport name reaches prompt");
+  A(Pn.mj.includes('consistent design identity "Baan-A"'), "mj identity token when named");
+  state.passport.name="";
+  A(!compile().mj.includes("consistent design identity"), "mj has no identity token by default");
+
+  // massing note in FORM
+  state.passport.massing="two-storey L-shaped, gable roof";
+  A(compile().gpt.includes("two-storey L-shaped, gable roof"), "massing note in FORM block");
+  state.passport.massing="";
+
+  // mode: new = no lock directive
+  A(!compile().gpt.includes("SAME BUILDING — NEW CAMERA ANGLE") && !compile().gpt.includes("SINGLE-ITEM EDIT"), "new mode = no lock directive");
+
+  // mode: view
+  state.passport.mode="view";
+  const Pv=compile();
+  A(Pv.gpt.includes("SAME BUILDING — NEW CAMERA ANGLE") && Pv.gpt.includes("ONLY the camera angle"), "view mode injects same-building directive");
+
+  // mode: edit targeting selected W#
+  state.passport.mode="edit"; state.passport.editKeys=["matWall"];
+  const Pe=compile();
+  A(Pe.gpt.includes("SINGLE-ITEM EDIT") && Pe.gpt.includes("W1 (walls)"), "edit mode targets selected W#");
+  A(Pe.gpt.includes("Every OTHER material"), "edit mode preserves the rest");
+  state.passport.mode="new"; state.passport.editKeys=[];
+
+  // passport UI renders without throwing (new/view/edit)
+  let threwPP=false; try{ renderPPMode(); renderPPEdit(); state.passport.mode="edit"; renderPPEdit(); state.passport.mode="view"; renderPPEdit(); state.passport.mode="new"; renderPPEdit(); }catch(e){ threwPP=true; console.error(e); }
+  A(!threwPP, "passport UI renders (new/view/edit) no throw");
+
+  // cleanup
+  CFG.forEach(g=>g.topics.forEach(t=>state.topics[t.id]=t.def||"auto"));
+
   console.log("\\nDONE");
 })();`;
 eval(src);
