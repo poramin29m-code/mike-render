@@ -268,24 +268,125 @@ footer a{color:var(--faint)}
   .grp>summary{padding:12px 13px}
   .gbody{padding:4px 13px 13px}
 }
+
+/* ═══════════ v1.4.1-r: STUDIO app-shell · dual theme · live rail · responsive ═══════════ */
+/* dual theme — light overrides (dark = :root default) */
+body.light{
+  --bg:#E9EDF5; --bg2:#FFFFFF; --panel:#FFFFFF; --panel2:#F1F4FB;
+  --line:#E0E6F0; --line2:#CBD4E3;
+  --txt:#19212F; --dim:#5A6379; --faint:#98A1B5;
+  --amber:#CF7A18; --cyan:#1385BC; --green:#3A9A49; --red:#D14456; --violet:#7253CC;
+}
+body.light{ background-image:
+  radial-gradient(1200px 500px at 80% -10%, rgba(19,133,188,.07), transparent 60%),
+  radial-gradient(900px 400px at 10% 0%, rgba(207,122,24,.06), transparent 60%); }
+body.light::before{opacity:.02}
+body.light .btn-gen{color:#fff}
+
+.app{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+
+/* topbar */
+.topbar{position:sticky;top:0;z-index:45;display:flex;align-items:center;gap:12px;
+  padding:9px clamp(12px,2vw,20px);background:color-mix(in srgb,var(--bg) 86%,transparent);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.topbar .brand{font-size:clamp(17px,2.4vw,22px)}
+.topbar .brand .cat{font-size:.6em}
+.topbar .spacer{flex:1}
+.topbar .seg{font-size:12.5px}
+.topbar .seg button{padding:6px 13px;font-size:12.5px}
+.topbar .modehint{display:none}
+.tbtn{font-family:var(--mono);font-size:13px;background:var(--panel2);color:var(--dim);
+  border:1px solid var(--line2);border-radius:9px;padding:7px 11px;cursor:pointer;transition:all .15s}
+.tbtn:hover{color:var(--txt);border-color:var(--cyan)}
+.topbar .ver{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--amber);
+  border:1px solid rgba(255,180,84,.4);border-radius:999px;padding:4px 11px}
+.railToggle{display:none}
+.railClose{display:none}
+
+/* studio two-pane */
+.studio{flex:1;display:grid;grid-template-columns:minmax(0,1fr) clamp(360px,32vw,440px);align-items:start}
+.settings{min-width:0;padding:14px clamp(14px,2.4vw,28px) 150px;max-width:900px;width:100%;justify-self:center}
+
+/* output rail (desktop = sticky pane) */
+.outputRail{position:sticky;top:53px;align-self:start;max-height:calc(100dvh - 53px);
+  overflow:auto;border-left:1px solid var(--line);background:var(--panel);
+  padding:14px 14px 120px;-webkit-overflow-scrolling:touch}
+.rail-title{font-family:var(--mono);font-size:12px;font-weight:800;letter-spacing:1px;color:var(--cyan);
+  display:flex;align-items:center;gap:8px;margin-bottom:11px}
+.rail-title .live{font-size:9px;font-weight:600;letter-spacing:.4px;color:var(--green);
+  border:1px solid rgba(127,217,98,.4);border-radius:999px;padding:2px 7px}
+.rail-ph{color:var(--faint);font-size:13px;border:1px dashed var(--line2);border-radius:10px;padding:30px 16px;text-align:center;line-height:1.7}
+
+/* dialect tabs */
+.dtabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.dtab{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--dim);background:var(--bg2);
+  border:1px solid var(--line);border-radius:8px;padding:6px 11px;cursor:pointer;transition:all .15s}
+.dtab:hover{color:var(--txt);border-color:var(--line2)}
+.dtab.on{background:rgba(57,186,230,.13);border-color:var(--cyan);color:var(--cyan)}
+.dtab .star{color:var(--green);margin-left:3px}
+.dpane{border:1px solid var(--line);border-radius:10px;background:var(--panel2);overflow:hidden}
+.dpane .dphead{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.dpane .dpname{font-family:var(--mono);font-weight:800;font-size:13px;color:var(--txt)}
+.dpane .dpfor{font-size:11px;color:var(--faint);flex:1;min-width:80px}
+.dpane pre.prompt{max-height:48vh;font-size:11.5px;padding:12px 13px}
+.dpane .dtips{padding:9px 12px;border-top:1px dashed var(--line)}
+/* collapsible sections in rail */
+.outputRail details{border:1px solid var(--line);border-radius:9px;background:var(--bg2);margin-top:10px;padding:0 12px;overflow:hidden}
+.outputRail details>summary{cursor:pointer;list-style:none;font-family:var(--mono);font-size:11.5px;font-weight:700;padding:9px 0}
+.outputRail details>summary::-webkit-details-marker{display:none}
+.outputRail details[open]>summary{border-bottom:1px dashed var(--line);margin-bottom:8px}
+.rail-iron>summary{color:var(--amber)} .rail-check>summary{color:var(--green)} .rail-qa>summary{color:var(--cyan)}
+.rail-iron ol{padding:0 0 11px 18px;display:grid;gap:4px;font-size:12px}
+.rail-iron ol b{color:var(--amber)}
+.outputRail details ul{list-style:none;display:grid;gap:5px;font-size:12.5px;padding:0 0 11px}
+.outputRail details ul li::before{content:"☐ ";color:var(--cyan);font-family:var(--mono)}
+.rail-qa ul li b{color:var(--txt)} .rail-qa .note{font-size:11.5px;padding-bottom:10px}
+
+/* genbar sits over settings only on desktop */
+@media(min-width:1025px){ .genbar{right:clamp(360px,32vw,440px)} }
+
+/* ───── tablet / iPad: rail becomes slide-in drawer ───── */
+@media(max-width:1024px){
+  .studio{grid-template-columns:1fr}
+  .railToggle{display:inline-flex;align-items:center;gap:5px}
+  .outputRail{position:fixed;top:0;right:0;height:100dvh;width:min(440px,94vw);
+    max-height:none;z-index:70;transform:translateX(101%);transition:transform .28s ease;
+    box-shadow:-14px 0 44px rgba(0,0,0,.45);padding-top:46px}
+  .outputRail.open{transform:none}
+  .railClose{display:block;position:absolute;top:9px;right:12px}
+  .railBackdrop{position:fixed;inset:0;background:rgba(5,8,14,.55);z-index:65;
+    opacity:0;pointer-events:none;transition:opacity .28s}
+  .railBackdrop.open{opacity:1;pointer-events:auto}
+  .genbar{right:0}
+}
+.railBackdrop{display:none}
+@media(max-width:1024px){.railBackdrop{display:block}}
+
+/* ───── mobile ───── */
+@media(max-width:560px){
+  .topbar{padding:8px 11px;gap:7px}
+  .topbar .seg button{padding:6px 11px;font-size:12px}
+  .outputRail{width:100vw}
+  .settings{padding:12px 11px 150px}
+}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="app">
 
-<header>
+<header class="topbar">
   <div class="brand"><span class="mk">MIKE</span> <span class="rd">RENDER</span><span class="cat">₍^. .^₎⟆</span></div>
-  <div class="tagline">ล่ามแปลภาษา <b>คน → AI</b> · สร้าง prompt สำหรับ render โมเดล 3D โดย <b>ล็อกรูปทรง 100%</b> — <b>Made by poramin29.m</b></div>
-  <div class="hbar">
-    <span class="ver">v1.4.1</span>
-    <span class="ok">🎫 PASSPORT lock</span>
-  </div>
-  <div class="modebar">
-    <div class="seg" id="wtSeg"></div>
-    <div class="seg" id="modeSeg" title="BASIC = เฉพาะหัวข้อหลัก · PRO = ครบทุกหัวข้อ"></div>
-    <span class="modehint" id="modeHint"></span>
-  </div>
+  <div class="seg" id="wtSeg"></div>
+  <span class="spacer"></span>
+  <div class="seg" id="modeSeg" title="BASIC = เฉพาะหัวข้อหลัก · PRO = ครบทุกหัวข้อ"></div>
+  <span class="modehint" id="modeHint"></span>
+  <button class="tbtn railToggle" id="railToggle">👁 Prompt</button>
+  <button class="tbtn" id="themeBtn" title="สลับโทนสว่าง/มืด">🌙</button>
+  <span class="ver">v1.4.1</span>
 </header>
+
+<main class="studio">
+<section class="settings">
 
 <!-- ════════ A · INPUT ════════ -->
 <details class="grp" open id="grpA">
@@ -318,20 +419,20 @@ footer a{color:var(--faint)}
 <!-- v1.4: preset bar — จุดเริ่มเร็วสุด ตั้งหลายค่าในคลิกเดียว แล้วปรับต่อได้ -->
 <div id="presetBar"></div>
 
-<!-- v1.4.1: PASSPORT — ล็อกหุ่น+เสื้อ ข้ามมุม/ข้ามการแก้ -->
+<!-- v1.4.1: Design Lock — keep building + materials identical across views/edits -->
 <details class="grp" open id="grpPP">
-  <summary><span class="gi pp">🎫</span><span class="gt">PASSPORT — ล็อกหุ่น + เสื้อ ข้ามมุม<span class="gsub">ตั้งครั้งเดียว → ทุกมุม/ทุกการแก้ใช้สเปกเดียวกัน (หุ่นลองเสื้อ)</span></span><span class="chev">▶</span></summary>
+  <summary><span class="gi pp">🔒</span><span class="gt">Design Lock — ล็อกแบบให้เหมือนเดิมทุก render<span class="gsub">ตั้งครั้งเดียว → เปลี่ยนมุมหรือแก้วัสดุ แล้วตัวอาคาร+วัสดุไม่เพี้ยน</span></span><span class="chev">▶</span></summary>
   <div class="gbody">
     <div class="topic">
-      <div class="tlabel"><span class="name">🆔 ชื่อ/รหัสอาคาร</span><span class="hint">ใช้อ้างตัวเดิมข้ามทุก render</span></div>
+      <div class="tlabel"><span class="name">🆔 ชื่อโปรเจค / อาคาร</span><span class="hint">ตั้งชื่อเพื่ออ้างถึงอาคารเดิมข้ามทุก render</span></div>
       <input type="text" id="ppName" placeholder="เช่น Baan-Riverside / House-A" maxlength="40">
     </div>
     <div class="topic">
-      <div class="tlabel"><span class="name">🧱 Massing / รูปทรงคงที่</span><span class="hint">บรรยายทรงที่ไม่เปลี่ยน (ทางเลือก · EN)</span></div>
+      <div class="tlabel"><span class="name">🧱 Structure &amp; Massing</span><span class="hint">บรรยายรูปทรงหลักที่ต้องคงที่ — ทางเลือก (ภาษาอังกฤษ AI เข้าใจแม่นกว่า)</span></div>
       <input type="text" id="ppMassing" placeholder="เช่น two-storey L-shaped, gable roof, double-height living" maxlength="160">
     </div>
     <div class="topic">
-      <div class="tlabel"><span class="name">🎯 โหมด render</span><span class="hint">หุ่นตัวเดิม — เปลี่ยนมุม / เปลี่ยนเสื้อทีละชิ้น</span></div>
+      <div class="tlabel"><span class="name">🎯 โหมดการ render</span><span class="hint">เลือกว่ากำลังทำอะไรกับอาคารตัวเดิม</span></div>
       <div class="seg ppseg" id="ppMode"></div>
       <div class="pills" id="ppEdit" style="margin-top:10px"></div>
       <div class="note" id="ppNote"></div>
@@ -344,17 +445,25 @@ footer a{color:var(--faint)}
 
 <div class="warnbox" id="conflictBox"></div>
 
-<!-- ════════ OUTPUT ════════ -->
-<div id="out"></div>
+<footer>MIKE RENDER v1.4.1 · part of MIKE-OS · template engine — no AI, no server, no tracking · <b>รูปไม่ออกจากเครื่อง</b><br>geometry-lock + Design Lock validated 2026-06 · ทดสอบจริง GPT ~9/10 · Gemini ~5-6/10 · material thumbnails CC0 ambientcg.com<br>Made by poramin29.m</footer>
+</section>
 
-<footer>MIKE RENDER v1.4.1 · part of MIKE-OS · template engine — no AI, no server, no tracking<br>geometry-lock pattern validated 2026-06 · 2 รอบทดสอบจริง (GPT ~9/10 · Gemini ~5-6/10)<br>material thumbnails: CC0 — ambientcg.com</footer>
-</div>
+<aside class="outputRail" id="outputRail">
+  <button class="tbtn railClose" id="railClose" title="ปิด">✕</button>
+  <div class="rail-title">⚡ LIVE PROMPT <span class="live">อัปเดตสด</span></div>
+  <div id="out"></div>
+</aside>
+</main>
+
+<div class="railBackdrop" id="railBackdrop"></div>
 
 <div class="genbar"><div class="inner">
   <button class="btn-side" id="btnReset" title="ล้างค่าทั้งหมดกลับ Auto">RESET</button>
-  <button class="btn-gen" id="btnGen">⚡ GENERATE PROMPT</button>
+  <button class="btn-gen" id="btnGen">⚡ GENERATE / รีเฟรช</button>
   <button class="btn-side" id="btnSave" title="จำค่าที่ตั้งไว้ในเครื่อง">SAVE</button>
 </div></div>
+
+</div><!-- /.app -->
 
 <div id="toast"></div>
 
@@ -977,7 +1086,7 @@ function renderPills(t){
     if(b.dataset.ref){ b.classList.toggle("dis", !state.refs[b.dataset.ref-1]); }
   });
 }
-function refreshAllPills(){ CFG.forEach(g=>g.topics.forEach(renderPills)); }
+function refreshAllPills(){ CFG.forEach(g=>g.topics.forEach(renderPills)); if(typeof scheduleLive==="function") scheduleLive(); }
 function updateBadges(){
   CFG.forEach(g=>{
     const n=g.topics.filter(t=>state.topics[t.id]!==(t.def||"auto")).length;
@@ -985,6 +1094,7 @@ function updateBadges(){
   });
   renderPresetBar(); /* v1.4: refresh ✱ modified indicator */
   if(typeof renderPPEdit==="function") renderPPEdit(); /* v1.4.1: refresh W# edit list */
+  if(typeof scheduleLive==="function") scheduleLive(); /* v1.4.1-r: live prompt */
 }
 
 /* ---------- v1.4: PRESET SYSTEM ----------
@@ -1067,7 +1177,7 @@ function buildSchedule(refIdx,refBase){
 }
 function currentSchedule(){ const refIdx=[]; state.refs.forEach((r,i)=>{if(r)refIdx.push(i);}); return buildSchedule(refIdx, state.site?3:2); }
 
-const PPMODES=[{v:"new",th:"🆕 NEW"},{v:"view",th:"🔄 มุมเพิ่ม"},{v:"edit",th:"👕 แก้เสื้อ"}];
+const PPMODES=[{v:"new",th:"🆕 New Render"},{v:"view",th:"🔄 New Angle"},{v:"edit",th:"✏️ Edit Material"}];
 function renderPPMode(){
   const seg=$("#ppMode"); if(!seg) return; seg.innerHTML="";
   PPMODES.forEach(m=>{
@@ -1083,14 +1193,14 @@ function renderPPEdit(){
   if(state.passport.mode!=="edit"){
     wrap.style.display="none";
     note.textContent = state.passport.mode==="view"
-      ? "🔄 มุมเพิ่ม: render หุ่น+เสื้อชุดเดิมเป๊ะ เปลี่ยนแค่มุมกล้อง — แนบรูป render รอบก่อน (master) เป็น ref ด้วย"
-      : "🆕 NEW: render รอบแรก = ตั้งหุ่น+เสื้อ (master) — รอบถัดไปค่อยใช้ 'มุมเพิ่ม / แก้เสื้อ' เพื่อล็อกให้เหมือนเดิม";
+      ? "🔄 New Angle: render อาคาร+วัสดุชุดเดิมเป๊ะ เปลี่ยนแค่มุมกล้อง — แนบรูป render รอบก่อนเป็น ref ด้วย"
+      : "🆕 New Render: รอบแรก = สร้างอาคาร+วัสดุต้นแบบ — รอบถัดไปใช้ New Angle / Edit Material เพื่อล็อกให้เหมือนเดิม";
     return;
   }
   wrap.style.display="";
   const sch=currentSchedule();
-  if(!sch.length){ note.textContent="👕 ยังไม่มีวัสดุในสเปก — เลือกวัสดุก่อน (กลุ่ม D · วัสดุ)"; return; }
-  note.textContent="👕 แก้เสื้อ: เลือกวัสดุ (W#) ที่จะเปลี่ยน — ที่เหลือถูกล็อกให้เหมือน render เดิมเป๊ะ";
+  if(!sch.length){ note.textContent="✏️ ยังไม่มีวัสดุในสเปก — เลือกวัสดุก่อน (กลุ่มวัสดุ)"; return; }
+  note.textContent="✏️ Edit Material: เลือกวัสดุ (W#) ที่จะเปลี่ยน — ที่เหลือถูกล็อกให้เหมือน render เดิมเป๊ะ";
   const ek=new Set(state.passport.editKeys||[]);
   sch.forEach(s=>{
     const b=document.createElement("button"); b.type="button";
@@ -1100,8 +1210,8 @@ function renderPPEdit(){
     wrap.appendChild(b);
   });
 }
-$("#ppName").oninput=e=>{ state.passport.name=e.target.value; };
-$("#ppMassing").oninput=e=>{ state.passport.massing=e.target.value; };
+$("#ppName").oninput=e=>{ state.passport.name=e.target.value; if(typeof scheduleLive==="function") scheduleLive(); };
+$("#ppMassing").oninput=e=>{ state.passport.massing=e.target.value; if(typeof scheduleLive==="function") scheduleLive(); };
 renderPPMode(); renderPPEdit();
 
 /* building type pills — v1.3: 2 ชั้น (หมวด → ชนิดย่อย) */
@@ -1224,7 +1334,7 @@ setMode(mode);
 
 /* desc */
 const descEl=$("#desc");
-descEl.oninput=()=>{state.desc=descEl.value; const n=descEl.value.length; const c=$("#descCount"); c.textContent=n+" / 200"; c.classList.toggle("over",n>200);};
+descEl.oninput=()=>{state.desc=descEl.value; const n=descEl.value.length; const c=$("#descCount"); c.textContent=n+" / 200"; c.classList.toggle("over",n>200); if(typeof scheduleLive==="function") scheduleLive();};
 function renderChips(){
   const wrap=$("#descChips"); wrap.innerHTML="";
   (DCHIPS_BY[state.btype]||DCHIPS_BY.other).forEach(c=>{
@@ -1465,81 +1575,66 @@ ${preserve}`;
   return {gpt,gem,gen,mj,styleWarn,refIdx,core};
 }
 
-/* ---------- output render ---------- */
+/* ---------- output render (v1.4.1-r: LIVE rail + dialect tabs) ---------- */
 function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;");}
-function hl(s){return esc(s).replace(/^(PRESERVE EXACTLY:|PRESERVE:|TASK[^\n]*|CHANGE ONLY[^\n]*)/gm,'<span class="kw">$1</span>');}
+function hl(s){return esc(s).replace(/^(PRESERVE EXACTLY:|PRESERVE:|TASK[^\n]*|CHANGE ONLY[^\n]*|Render this model[^\n]*|Image-to-image[^\n]*|=== BUILDING PASSPORT[^\n]*|FORM \(locked\):|MATERIAL SCHEDULE[^\n]*|SAME BUILDING[^\n]*|SINGLE-ITEM EDIT[^\n]*)/gm,'<span class="kw">$1</span>');}
 
-$("#btnGen").onclick=()=>{
-  if(!state.model){ toast("⚠️ ต้องใส่รูปโมเดล (IMAGE 1) ก่อน"); $("#grpA").open=true; $("#grpA").scrollIntoView({behavior:"smooth"}); return; }
-  if(state.desc.length>200) toast("คำอธิบายเกิน 200 ตัวอักษร — จะตัดให้พอดี");
-  if(/[ก-๛]/.test(state.desc)) toast("💡 คำอธิบายมีภาษาไทย — AI render เข้าใจอังกฤษแม่นกว่า ลองใช้ chips ช่วย");
-  const P=compile();
-  const t=state.topics;
-  const target=t.target;
-  const rec = P.styleWarn ? "gpt" : (target!=="all"?target:"gpt"); /* default ★ = GPT — ทดสอบจริง 2 รอบ lock แข็งสุด */
+let activeDialect="gpt";
+function liveRender(){
+  const rail=$("#out"); if(!rail) return;
+  if(!state.model){ rail.innerHTML='<div class="rail-ph">📐 ใส่รูปโมเดล 3D (Image 1) ทางซ้าย<br>แล้ว prompt จะสร้างที่นี่อัตโนมัติ<br><span style="opacity:.7">ปรับค่าทางซ้าย → เห็นผลทันที</span></div>'; return; }
+  const P=compile(); const t=state.topics;
+  const rec = P.styleWarn ? "gpt" : (t.target!=="all"?t.target:"gpt");
+  if(["gpt","gem","mj","gen"].indexOf(activeDialect)<0) activeDialect="gpt";
   const refBase=state.site?3:2;
   const attach=["รูปโมเดล 3D ต้นฉบับ (= image 1) — แนบใหม่ทุกครั้ง"]
     .concat(state.site?[`รูปหน้างานจริง (= image 2) — ${state.site}`]:[])
     .concat(P.refIdx.map((i,k)=>`รูป ref ${i+1} (= image ${k+refBase}) — ${state.refs[i]}`));
-  if(state.passport.mode==="view"||state.passport.mode==="edit") attach.push("⭐ รูป render รอบก่อน (master) — แนบเป็น ref เพิ่ม เพื่อยึดเสื้อ/รายละเอียดเดิม (PASSPORT mode)");
+  if(state.passport.mode==="view"||state.passport.mode==="edit") attach.push("⭐ รูป render รอบก่อน — แนบเป็น ref เพิ่ม (Design Lock)");
+  const DI={
+    gpt:{n:"GPT",f:"ChatGPT · GPT-image — lock แข็งสุด ~9/10",b:P.gpt,t:`<b>Tips:</b> แนบรูปแล้ววางได้เลย · API: <b>input_fidelity="high"</b> + <b>quality="high"</b>`},
+    gem:{n:"GEMINI",f:"Gemini · Nano Banana — รับ ref ได้เยอะ",b:P.gem,t:`<b>Tips:</b> Gemini drift ง่ายกว่า (~5-6/10) — งาน lock จริงจังใช้ GPT · ${P.styleWarn?'<b style="color:var(--red)">สไตล์วาด drift หนัก → ใช้ GPT</b> · ':""}เหมาะลองหลายโทนเร็วๆ`},
+    mj:{n:"MIDJOURNEY",f:"สำรวจ mood/style — prompt บรรยายล้วน",b:P.mj,t:`<b>Tips:</b> MJ ไม่ใช่เครื่อง edit · ยึดโครงด้วย <b>--oref &lt;URL&gt; --ow 400</b> · เหมาะหาทิศทาง แล้ว lock จริงด้วย GPT`},
+    gen:{n:"GENERIC",f:"Qwen · Grok · Copilot · อื่นๆ",b:P.gen,t:`<b>Tips:</b> CHANGE + PRESERVE ใช้ได้ทุกค่าย · ผลเพี้ยน → ลดคำสั่ง CHANGE ทีละเรื่อง`}
+  };
+  const order=["gpt","gem","mj","gen"]; const A=DI[activeDialect];
+  rail.innerHTML=`
+    <details class="rail-iron"><summary>⚠️ กฎเหล็กก่อนใช้ (จากการทดสอบจริง)</summary>
+      <ol><li><b>แนบรูปต้นฉบับใหม่ทุกครั้ง</b> — ห้าม chain แก้ต่อจากผลรอบก่อน (drift ทบต้น)</li>
+      <li>แนบรูปครบตาม checklist · ลำดับตรงกับ image 1, 2, 3…</li>
+      <li>อยากแก้ → ปรับค่าทางซ้าย แล้ว copy ใหม่ + แนบต้นฉบับใหม่</li></ol></details>
+    <div class="dtabs">${order.map(k=>`<button class="dtab ${activeDialect===k?"on":""}" data-d="${k}">${DI[k].n}${rec===k?'<span class="star">★</span>':""}</button>`).join("")}</div>
+    <div class="dpane">
+      <div class="dphead"><span class="dpname">${A.n}</span><span class="dpfor">${A.f}</span>${rec===activeDialect?'<span class="recband">★ แนะนำ</span>':""}<button class="btn-copy" id="copyBtn">COPY</button></div>
+      <pre class="prompt">${hl(A.b)}</pre>
+      <div class="dtips">${A.t}</div>
+    </div>
+    <details class="rail-check"><summary>📎 รูปที่ต้องแนบ (${attach.length})</summary><ul>${attach.map(a=>`<li>${a}</li>`).join("")}</ul></details>
+    <details class="rail-qa"><summary>🔍 QA หลัง render — เทียบกับโมเดลต้นฉบับ</summary>
+      <ul><li>นับ<b>หน้าต่าง+ประตู</b> ตรงทุกบานไหม</li><li><b>ทรงหลังคา</b> ชัน/ชายคา/สัน ตรงเดิมไหม</li>
+      <li>นับ<b>เสา/บันได/ระเบียง</b> ครบไหม</li><li><b>โซนวัสดุ</b> ลามเกินขอบไหม</li><li><b>มุมกล้อง+สัดส่วน</b> ไม่บีบ/ยืด</li></ul>
+      <div class="note">❌ เพี้ยน → อย่าแก้ต่อในแชท · กลับมา copy ใหม่ + แนบต้นฉบับใหม่ (Gemini เพี้ยนซ้ำ → ลอง GPT)</div></details>`;
+  rail.querySelectorAll(".dtab").forEach(b=>{ b.onclick=()=>{ activeDialect=b.dataset.d; liveRender(); }; });
+  const cb=$("#copyBtn"); if(cb) cb.onclick=()=>{ navigator.clipboard.writeText(A.b).then(()=>{ cb.textContent="COPIED ✓"; cb.classList.add("done"); setTimeout(()=>{cb.textContent="COPY";cb.classList.remove("done");},1600); toast("คัดลอก "+A.n+" — อย่าลืมแนบรูปต้นฉบับ!"); }); };
+}
+var liveTimer; function scheduleLive(){ clearTimeout(liveTimer); liveTimer=setTimeout(liveRender,140); }
 
-  const dial=(cls,name,forTxt,body,tips,isRec)=>`
-  <div class="dialect ${cls} ${isRec?"rec":""}">
-    <div class="dhead"><span class="dname">${name}</span><span class="dfor">${forTxt}</span>
-      ${isRec?'<span class="recband">★ แนะนำ</span>':""}
-      <button class="btn-copy" data-copy="${cls}">COPY</button></div>
-    <pre class="prompt" id="pp_${cls}">${hl(body)}</pre>
-    <div class="dtips">${tips}</div>
-  </div>`;
+/* rail drawer (tablet/mobile) + theme toggle */
+function openRail(){ const r=$("#outputRail"),b=$("#railBackdrop"); if(r)r.classList.add("open"); if(b)b.classList.add("open"); }
+function closeRail(){ const r=$("#outputRail"),b=$("#railBackdrop"); if(r)r.classList.remove("open"); if(b)b.classList.remove("open"); }
+$("#railToggle").onclick=()=>{ liveRender(); openRail(); };
+$("#railClose").onclick=closeRail;
+$("#railBackdrop").onclick=closeRail;
+function setTheme(th){ document.body.classList.toggle("light",th==="light"); localStorage.setItem("mr-theme",th);
+  const b=$("#themeBtn"); if(b)b.textContent=th==="light"?"☀️":"🌙";
+  const m=document.querySelector('meta[name="theme-color"]'); if(m)m.setAttribute("content",th==="light"?"#E9EDF5":"#0B0E14"); }
+$("#themeBtn").onclick=()=>setTheme(document.body.classList.contains("light")?"dark":"light");
+setTheme(localStorage.getItem("mr-theme")||"dark");
 
-  $("#out").innerHTML=`
-  <div class="ironbox">
-    <h3>⚠️ กฎเหล็กก่อนใช้ (จากการทดสอบจริง)</h3>
-    <ol>
-      <li><b>แนบรูปต้นฉบับใหม่ทุกครั้ง</b> ที่สั่ง — ห้ามสั่งแก้ต่อจากผลลัพธ์รอบก่อน (drift ทบต้น: ทดสอบแล้ว Gemini 6→5→4)</li>
-      <li>แนบรูปครบตาม checklist ด้านล่าง ลำดับต้องตรงกับ image 1, 2, 3…</li>
-      <li>อยากแก้เพิ่ม → กลับมาปรับค่าในแอพนี้ แล้ว generate ใหม่ + แนบต้นฉบับใหม่</li>
-    </ol>
-  </div>
-  ${dial("d-gpt","GPT","ChatGPT · GPT-image — lock geometry แข็งสุด (ทดสอบจริง 2 รอบ ~9/10)",P.gpt,
-    `<b>Tips:</b> ใช้ใน ChatGPT แนบรูปแล้ววางได้เลย · ถ้าเรียกผ่าน API ให้ตั้ง <b>input_fidelity="high"</b> + <b>quality="high"</b>`,
-    rec==="gpt")}
-  ${dial("d-gem","GEMINI","Gemini · Nano Banana — รับ ref ได้ถึง 14 รูป",P.gem,
-    `<b>Tips:</b> จากการทดสอบจริง Gemini drift แม้ยิงนัดเดียวแนบต้นฉบับ (~5-6/10) — <b>งาน lock จริงจังแนะนำ GPT</b> · ต้องแนบต้นฉบับใหม่ทุกรอบ · ${P.styleWarn?'<b style="color:var(--red)">สไตล์วาดบน Gemini drift หนัก (ทดสอบ 4/10) — ใช้ GPT แทน</b> · ':""}จุดแข็งของ Gemini: ลองหลายโทน/หลาย ref เร็วๆ เพื่อหาทิศทาง แล้วค่อย lock จริงด้วย GPT`,
-    rec==="gem")}
-  ${dial("d-mj","MIDJOURNEY","สาย render explore mood/style — prompt บรรยายล้วน",P.mj,
-    `<b>Tips:</b> MJ <b>ไม่ใช่เครื่องมือ edit</b> — geometry lock จำกัดมาก · ยึดโครงด้วย <b>--oref &lt;URL รูปโมเดล&gt; --ow 400</b> (อัพรูปโมเดลขึ้น MJ ก่อนแล้วใช้ URL นั้น) · เหมาะสำรวจโทน/วัสดุ/บรรยากาศเร็วๆ แล้วค่อย lock จริงด้วย GPT`,
-    rec==="mj")}
-  ${dial("d-gen","GENERIC","Qwen · Grok · Copilot · AI image อื่นๆ",P.gen,
-    `<b>Tips:</b> โครงสร้าง CHANGE + PRESERVE ใช้ได้กับ image model ทุกค่าย · ถ้าผลเพี้ยน ให้ลดจำนวนคำสั่ง CHANGE ลงเหลือทีละเรื่อง`,
-    rec==="gen")}
-  <div class="checklist">
-    <h3>📎 CHECKLIST รูปที่ต้องแนบ (${attach.length} รูป · เรียงลำดับ)</h3>
-    <ul>${attach.map(a=>`<li>${a}</li>`).join("")}</ul>
-  </div>
-  <div class="checklist qa">
-    <h3>🔍 QA หลัง RENDER — เทียบผลกับโมเดลต้นฉบับ (จุดที่ AI ชอบเพี้ยน)</h3>
-    <ul>
-      <li>นับ<b>หน้าต่าง + ประตู</b> — จำนวน ตำแหน่ง สัดส่วน ตรงทุกบานไหม</li>
-      <li><b>ทรงหลังคา</b> — ความชัน ชายคา ทิศทางสัน ตรงเดิมไหม</li>
-      <li>นับ<b>เสา / ขั้นบันได / ระเบียง</b> — ครบและอยู่ที่เดิมไหม</li>
-      <li><b>โซนวัสดุ</b> — วัสดุลามเกินขอบเขตเดิมไหม (เช่น อิฐกินพื้นที่ปูน)</li>
-      <li><b>มุมกล้อง + สัดส่วนตัวอาคาร</b> — ไม่บีบ ไม่ยืด ไม่ถอยหลังเอง</li>
-    </ul>
-    <div class="note">❌ ข้อไหนเพี้ยน → <b>อย่าสั่งแก้ต่อในแชท</b> — กลับมา generate ใหม่ + แนบต้นฉบับใหม่ (ถ้าใช้ Gemini แล้วเพี้ยนซ้ำ → ลอง GPT)</div>
-  </div>`;
-  $("#out").classList.add("show");
-  document.querySelectorAll(".btn-copy").forEach(b=>{
-    b.onclick=()=>{
-      const map={"d-gpt":P.gpt,"d-gem":P.gem,"d-gen":P.gen,"d-mj":P.mj};
-      navigator.clipboard.writeText(map[b.dataset.copy]).then(()=>{
-        b.textContent="COPIED ✓"; b.classList.add("done");
-        setTimeout(()=>{b.textContent="COPY";b.classList.remove("done");},1800);
-        toast("คัดลอกแล้ว — อย่าลืมแนบรูปต้นฉบับ!");
-      });
-    };
-  });
-  $("#out").scrollIntoView({behavior:"smooth",block:"start"});
+$("#btnGen").onclick=()=>{
+  if(!state.model){ toast("⚠️ ใส่รูปโมเดล (Image 1) ก่อน"); $("#grpA").open=true; if($("#grpA").scrollIntoView)$("#grpA").scrollIntoView({behavior:"smooth"}); return; }
+  if(/[ก-๛]/.test(state.desc)) toast("💡 คำอธิบายมีภาษาไทย — AI เข้าใจอังกฤษแม่นกว่า");
+  liveRender(); openRail();
 };
 
 /* ---------- save / reset / toast ---------- */
@@ -1570,6 +1665,7 @@ function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("sh
 
 /* ---------- PWA ---------- */
 if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+liveRender(); /* v1.4.1-r: initial prompt render in rail */
 </script>
 </body>
 </html>
