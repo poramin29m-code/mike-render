@@ -11,12 +11,12 @@
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Anuphan:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0B0E14; --bg2:#11151F; --panel:#151A26; --panel2:#1A2030;
-  --line:#232A3B; --line2:#2E3850;
-  --txt:#D9DEEA; --dim:#8A93A8; --faint:#5A6378;
-  --amber:#FFB454; --cyan:#39BAE6; --green:#7FD962; --red:#F26D78; --violet:#C7A6FF;
+  --bg:#0A0A0C; --bg2:#111115; --panel:#141418; --panel2:#1B1B21;
+  --line:#23232A; --line2:#31313B;
+  --txt:#F3F3F5; --dim:#8A8A94; --faint:#54545C;
+  --amber:#FF8F3D; --cyan:#5AC8F5; --green:#5FD08A; --red:#F2657A; --violet:#B79CFF;
   --mono:'JetBrains Mono',monospace; --thai:'Anuphan','JetBrains Mono',sans-serif;
-  --r:10px;
+  --r:14px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -437,23 +437,123 @@ pre.prompt{font-size:12px;line-height:1.65}
 .outputRail.open #out>*{animation:fadein .35s ease backwards}
 .outputRail.open #out>*:nth-child(2){animation-delay:.04s}
 .outputRail.open #out>*:nth-child(3){animation-delay:.08s}
+
+/* ═══════════ v2.0 — PREMIUM editing-app shell (sidebar + canvas + sections) ═══════════ */
+.app{display:flex;flex-direction:row;min-height:100vh;min-height:100dvh}
+.wrap{max-width:none}
+body{font-size:15px}
+
+/* ── sidebar ── */
+.sidebar{width:240px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--line);
+  display:flex;flex-direction:column;position:sticky;top:0;height:100vh;height:100dvh;z-index:50}
+.sidebar .brand{padding:26px 24px 20px;line-height:1.1}
+.sidebar .brand .mk{color:var(--txt);font-family:var(--mono);font-weight:800;font-size:16px;letter-spacing:.3px}
+.sidebar .brand .rd{color:var(--amber);font-family:var(--mono);font-weight:800;font-size:16px}
+.sidebar .brand .bsub{font-family:var(--mono);font-size:9px;color:var(--faint);letter-spacing:2.5px;margin-top:6px}
+.nav{flex:1;overflow-y:auto;padding:6px 14px;display:flex;flex-direction:column;gap:2px}
+.navitem{display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:10px;cursor:pointer;
+  position:relative;transition:background .15s,color .15s;color:var(--dim)}
+.navitem:hover{background:var(--panel);color:var(--txt)}
+.navitem.on{background:var(--panel2);color:var(--txt)}
+.navitem.on::before{content:"";position:absolute;left:0;top:9px;bottom:9px;width:3px;border-radius:2px;background:var(--amber)}
+.navitem .nnum{font-family:var(--mono);font-size:11px;color:var(--faint)}
+.navitem.on .nnum{color:var(--amber)}
+.navitem .nlabel{font-size:13.5px;font-weight:500}
+.navitem.on .nlabel{font-weight:600}
+.navitem .nbadge{margin-left:auto;font-family:var(--mono);font-size:9px;color:var(--amber);
+  background:rgba(255,143,61,.12);border:1px solid rgba(255,143,61,.32);border-radius:99px;padding:1px 7px;display:none}
+.navitem .nbadge.show{display:inline-block}
+.sidefoot{padding:14px 22px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.sidefoot .ver{font-family:var(--mono);font-size:11px;color:var(--faint)}
+.sidefoot .tbtn{padding:7px 10px;border-radius:9px}
+.navBackdrop{display:none}
+
+/* ── canvas ── */
+.canvas{flex:1;min-width:0;display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+.cv-top{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:11px;
+  padding:13px clamp(18px,3vw,40px);background:color-mix(in srgb,var(--bg) 86%,transparent);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.cv-top .spacer{flex:1}
+.cv-top .seg{border-color:var(--line);background:var(--bg2);border-radius:999px;padding:2px}
+.cv-top .seg button{border-radius:999px;font-weight:600;padding:6px 14px;font-size:12.5px}
+.cv-top .seg button.on{background:var(--amber);color:#1a1205}
+.iconbtn{background:var(--panel);border:1px solid var(--line);color:var(--dim);border-radius:9px;padding:8px 11px;cursor:pointer;font-size:15px;display:none}
+.cv-gen{padding:10px 22px;font-size:14px;letter-spacing:.4px;flex:none;box-shadow:var(--glowA)}
+.cv-scroll{flex:1;overflow-y:auto;padding:30px clamp(18px,3vw,46px) 130px}
+.cv-scroll>*{max-width:1060px}
+.settings{max-width:none;margin:0;padding:0}
+
+/* ── section header ── */
+.sec-head{margin-bottom:6px}
+.sec-label{font-family:var(--mono);font-size:11px;color:var(--amber);letter-spacing:1.6px}
+.sec-title{font-size:clamp(23px,3vw,30px);font-weight:700;letter-spacing:-.6px;margin-top:7px;color:var(--txt)}
+.sec-sub{font-size:13.5px;color:var(--dim);margin-top:9px;max-width:680px;line-height:1.6}
+.sec-guide{margin:18px 0 2px;padding:13px 16px;border-radius:12px;border:1px solid rgba(90,200,245,.22);
+  background:linear-gradient(180deg,rgba(90,200,245,.06),transparent);font-size:13px;color:var(--dim);line-height:1.55}
+.sec-guide b{color:var(--cyan)}
+
+/* ── sections (sidebar-switched, not accordion) ── */
+.grp{display:none;border:none;background:none;box-shadow:none;margin:0;border-radius:0}
+.grp.shown{display:block;animation:secIn .42s cubic-bezier(.2,.6,.2,1)}
+@keyframes secIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.grp>summary{display:none}
+.gbody{padding:18px 0 0;border:none}
+.topic{padding:17px 0;border-bottom:1px solid var(--line)}
+.topic:last-child{border-bottom:none}
+#presetBar{margin-top:20px}
+
+/* ── wayfinding ── */
+.wayfind{margin-top:34px;padding-top:24px;border-top:1px solid var(--line);display:flex;align-items:stretch;gap:12px;flex-wrap:wrap}
+.wayfind .wlabel{font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:1.6px;width:100%;margin-bottom:2px}
+.waybtn{display:flex;align-items:center;gap:12px;padding:13px 18px;border-radius:13px;border:1px solid var(--line);background:var(--panel);cursor:pointer;transition:all .16s}
+.waybtn:hover{border-color:var(--line2);transform:translateY(-2px);box-shadow:var(--shadow)}
+.waybtn .wn{font-family:var(--mono);font-size:14px;color:var(--amber);font-weight:600}
+.waybtn .wt{font-size:13.5px;font-weight:700;color:var(--txt)}
+.waybtn .ws{font-size:11.5px;color:var(--dim);margin-top:1px}
+.waybtn.primary{background:linear-gradient(135deg,rgba(255,143,61,.15),rgba(255,143,61,.05));border-color:rgba(255,143,61,.5)}
+.waybtn.primary:hover{border-color:var(--amber);box-shadow:var(--glowA)}
+footer{margin-top:28px;text-align:left;font-size:10.5px;opacity:.6}
+
+/* ── responsive: sidebar → drawer ── */
+@media(max-width:880px){
+  .sidebar{position:fixed;left:0;top:0;transform:translateX(-101%);transition:transform .28s ease;box-shadow:14px 0 50px rgba(0,0,0,.55)}
+  .sidebar.open{transform:none}
+  .iconbtn{display:inline-block}
+  .navBackdrop{display:block;position:fixed;inset:0;background:rgba(4,5,8,.62);z-index:45;opacity:0;pointer-events:none;transition:opacity .28s}
+  .navBackdrop.open{opacity:1;pointer-events:auto}
+  .cv-scroll{padding:22px 16px 130px}
+  .cv-gen{padding:9px 16px;font-size:13px}
+}
 </style>
 </head>
 <body>
 <div class="app">
 
-<header class="topbar">
-  <div class="brand"><span class="mk">MIKE</span> <span class="rd">RENDER</span><span class="cat">₍^. .^₎⟆</span></div>
+<aside class="sidebar" id="sidebar">
+  <div class="brand"><div><span class="mk">MIKE</span> <span class="rd">RENDER</span></div><div class="bsub">PROMPT STUDIO</div></div>
+  <nav class="nav" id="nav"></nav>
+  <div class="sidefoot">
+    <button class="tbtn" id="themeBtn" title="สลับโทนสว่าง/มืด">◐</button>
+    <span class="ver">v2.0</span>
+  </div>
+</aside>
+<div class="navBackdrop" id="navBackdrop"></div>
+
+<main class="canvas">
+<header class="cv-top">
+  <button class="iconbtn navtoggle" id="navToggle" title="เมนู">☰</button>
   <div class="seg" id="wtSeg"></div>
   <span class="spacer"></span>
   <div class="seg" id="modeSeg" title="BASIC = เฉพาะหัวข้อหลัก · PRO = ครบทุกหัวข้อ"></div>
   <span class="modehint" id="modeHint"></span>
   <button class="tbtn railToggle" id="railToggle">👁 Prompt</button>
-  <button class="tbtn" id="themeBtn" title="สลับโทนสว่าง/มืด">🌙</button>
-  <span class="ver">v1.4.1</span>
+  <button class="btn-side" id="btnReset" title="ล้างค่าทั้งหมดกลับ Auto">RESET</button>
+  <button class="btn-gen cv-gen" id="btnGen">⚡ Generate</button>
+  <button class="btn-side" id="btnSave" title="จำค่าที่ตั้งไว้ในเครื่อง">SAVE</button>
 </header>
-
-<main class="studio">
+<div class="cv-scroll">
+<div class="sec-head"><div class="sec-label" id="secLabel"></div><h1 class="sec-title" id="secTitle"></h1><div class="sec-sub" id="secSub"></div></div>
+<div class="sec-guide" id="secGuide" style="display:none"></div>
 <section class="settings">
 
 <!-- ════════ A · INPUT ════════ -->
@@ -515,21 +615,16 @@ pre.prompt{font-size:12px;line-height:1.65}
 
 <footer>MIKE RENDER v1.4.1 · part of MIKE-OS · template engine — no AI, no server, no tracking · <b>รูปไม่ออกจากเครื่อง</b><br>geometry-lock + Design Lock validated 2026-06 · ทดสอบจริง GPT ~9/10 · Gemini ~5-6/10 · material thumbnails CC0 ambientcg.com<br>Made by poramin29.m</footer>
 </section>
+<div class="wayfind" id="wayfind"></div>
+</div><!-- /.cv-scroll -->
+</main>
 
 <aside class="outputRail" id="outputRail">
   <button class="tbtn railClose" id="railClose" title="ปิด">✕</button>
   <div class="rail-title">⚡ PROMPT ที่สร้าง <span class="live">4 ค่าย</span></div>
   <div id="out"></div>
 </aside>
-</main>
-
 <div class="railBackdrop" id="railBackdrop"></div>
-
-<div class="genbar"><div class="inner">
-  <button class="btn-side" id="btnReset" title="ล้างค่าทั้งหมดกลับ Auto">RESET</button>
-  <button class="btn-gen" id="btnGen">⚡ GENERATE / รีเฟรช</button>
-  <button class="btn-side" id="btnSave" title="จำค่าที่ตั้งไว้ในเครื่อง">SAVE</button>
-</div></div>
 
 </div><!-- /.app -->
 
@@ -1158,7 +1253,8 @@ function refreshAllPills(){ CFG.forEach(g=>g.topics.forEach(renderPills)); }
 function updateBadges(){
   CFG.forEach(g=>{
     const n=g.topics.filter(t=>state.topics[t.id]!==(t.def||"auto")).length;
-    const el=$("#bdg"+g.id); el.textContent=n?`ปรับ ${n}`:""; el.style.display=n?"":"none";
+    const el=$("#bdg"+g.id); if(el){el.textContent=n?`ปรับ ${n}`:""; el.style.display=n?"":"none";}
+    const nb=document.getElementById("nb_grp"+g.id); if(nb){nb.textContent=n||""; nb.classList.toggle("show",!!n);} /* v2.0 nav badge */
   });
   renderPresetBar(); /* v1.4: refresh ✱ modified indicator */
   if(typeof renderPPEdit==="function") renderPPEdit(); /* v1.4.1: refresh W# edit list */
@@ -1732,6 +1828,56 @@ function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("sh
 
 /* ---------- PWA ---------- */
 if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+
+/* ════════ v2.0 — section navigation (editing-app paradigm) ════════ */
+const SECTIONS=[
+ {id:"grpA", n:"01", t:"แหล่งภาพ", sub:"เพิ่มภาพโมเดล 3D — ภาพเดียวก็เริ่มได้ · รูปอยู่ในเครื่อง ไม่ส่งออกไปไหน", guide:"<b>เริ่มที่นี่:</b> วางภาพโมเดล 3D ในช่อง IMAGE 1 (บังคับ) → เลือกประเภทอาคาร → เขียนคำอธิบายสั้นๆ แล้วไปหัวข้อถัดไป", preset:true},
+ {id:"grpPP", n:"02", t:"Design Lock", sub:"ล็อกอาคาร + วัสดุ ให้เหมือนเดิมทุก render — สำหรับงานหลายมุม/หลายรอบ", guide:"<b>ใช้เมื่อ render หลายรอบ:</b> ตั้งชื่อโปรเจค → เลือกโหมด (มุมใหม่ = เปลี่ยนมุมกล้อง · แก้วัสดุ = เปลี่ยนทีละชิ้น) ระบบคุมให้เหมือนเดิมอัตโนมัติ"},
+ {id:"grpB", n:"03", t:"เอาต์พุต", sub:"AI เป้าหมาย · สไตล์ภาพ · ระดับสมจริง", guide:"GPT lock geometry แข็งสุด · สไตล์วาดเสี่ยง drift บน Gemini"},
+ {id:"grpC", n:"04", t:"แสง · เวลา · อากาศ", sub:"เลื่อน slider หรือกดปุ่มคำ — บรรยากาศที่ AI ทำตามได้แม่นที่สุด", guide:"golden hour = ภาพขายงานสวย · midday = catalog สะอาด · กดปุ่มคำได้ถ้าไม่อยากเลื่อน"},
+ {id:"grpD", n:"05", t:"บริบทรอบอาคาร", sub:"ที่ตั้ง · สวน · รั้ว · พื้นรอบบ้าน · ฉากหลัง", guide:""},
+ {id:"grpE", n:"06", t:"วัสดุ", sub:"override วัสดุแต่ละผิว — 📚 คลังวัสดุ 90+ · 🎨 สีเอง · จาก ref", guide:"กด <b>📚 คลังวัสดุ</b> เพื่อเลือกจากรายการ ไทย⇄อังกฤษ พร้อมรูปตัวอย่าง"},
+ {id:"grpF", n:"07", t:"กล้อง", sub:"มุมกล้อง · เลนส์ · เอฟเฟกต์ภาพถ่าย · สัดส่วน", guide:""},
+ {id:"grpG", n:"08", t:"ชีวิตในภาพ", sub:"หุ่นมาตราส่วน · คน · รถ · ของประกอบฉาก", guide:""},
+ {id:"grpH", n:"09", t:"ความเข้มงวด", sub:"ระดับการล็อกรูปทรง geometry", guide:""},
+];
+let activeSec="grpA";
+function buildNav(){
+  const nav=$("#nav"); if(!nav)return; nav.innerHTML="";
+  SECTIONS.forEach(s=>{
+    const it=document.createElement("div"); it.className="navitem"; it.dataset.sec=s.id;
+    it.innerHTML=`<span class="nnum">${s.n}</span><span class="nlabel">${s.t}</span><span class="nbadge" id="nb_${s.id}"></span>`;
+    it.onclick=()=>showSection(s.id);
+    nav.appendChild(it);
+  });
+}
+function showSection(id){
+  const s=SECTIONS.find(x=>x.id===id)||SECTIONS[0]; activeSec=s.id;
+  document.querySelectorAll(".grp").forEach(g=>{ g.classList.remove("shown"); if(g.tagName==="DETAILS") g.open=true; });
+  const el=document.getElementById(s.id); if(el) el.classList.add("shown");
+  const pb=$("#presetBar"); if(pb) pb.style.display=s.preset?"":"none";
+  $("#secLabel").textContent=s.n+" / "+s.t.toUpperCase();
+  $("#secTitle").textContent=s.t;
+  $("#secSub").textContent=s.sub||"";
+  const g=$("#secGuide"); if(g){ if(s.guide){g.style.display="block";g.innerHTML="💡 "+s.guide;} else g.style.display="none"; }
+  document.querySelectorAll(".navitem").forEach(n=>n.classList.toggle("on",n.dataset.sec===s.id));
+  buildWayfind(s.id); closeNav();
+  const sc=$(".cv-scroll"); if(sc) sc.scrollTop=0;
+}
+function buildWayfind(id){
+  const w=$("#wayfind"); if(!w)return; const i=SECTIONS.findIndex(x=>x.id===id); const next=SECTIONS[i+1];
+  let html='<span class="wlabel">ขั้นถัดไป →</span>';
+  if(next) html+=`<div class="waybtn" data-go="${next.id}"><span class="wn">${next.n}</span><div><div class="wt">${next.t}</div><div class="ws">${next.sub?next.sub.slice(0,38):""}</div></div></div>`;
+  html+=`<div class="waybtn primary" data-gen="1"><span class="wn">⚡</span><div><div class="wt">Generate Prompt</div><div class="ws">สร้าง prompt ทั้ง 4 ค่าย</div></div></div>`;
+  w.innerHTML=html;
+  w.querySelectorAll(".waybtn[data-go]").forEach(b=>b.onclick=()=>showSection(b.dataset.go));
+  const gb=w.querySelector(".waybtn[data-gen]"); if(gb)gb.onclick=()=>$("#btnGen").onclick();
+}
+function openNav(){ const s=$("#sidebar"),b=$("#navBackdrop"); if(s)s.classList.add("open"); if(b)b.classList.add("open"); }
+function closeNav(){ const s=$("#sidebar"),b=$("#navBackdrop"); if(s)s.classList.remove("open"); if(b)b.classList.remove("open"); }
+$("#navToggle").onclick=openNav; $("#navBackdrop").onclick=closeNav;
+buildNav(); showSection("grpA");
+
 liveRender(); /* v1.4.1-r: initial prompt render in rail */
 </script>
 </body>
