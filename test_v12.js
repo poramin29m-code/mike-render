@@ -345,10 +345,19 @@ src += `
   state.passport.name="";
   A(!compile().mj.includes("consistent design identity"), "mj has no identity token by default");
 
-  // massing note in FORM
-  state.passport.massing="two-storey L-shaped, gable roof";
-  A(compile().gpt.includes("two-storey L-shaped, gable roof"), "massing note in FORM block");
-  state.passport.massing="";
+  // v1.4.1: FORM auto-derives from desc (manual massing field removed)
+  state.desc="L-shaped courtyard house";
+  A(compile().gpt.includes("FORM (locked):") && compile().gpt.includes("L-shaped courtyard house"), "FORM auto-derives building + desc");
+  state.desc="";
+
+  // v1.4.1: New Angle — camera angle picker + prompt injection
+  A(Array.isArray(ANGLES) && ANGLES.length>=8 && ANGLES.some(a=>a.v==="isoFL"), "ANGLES set with iso views");
+  A(typeof camIcon==="function" && camIcon("isoFL",true).includes("<svg") && camIcon("aerial",false).includes("polygon"), "camIcon renders iso SVG");
+  state.passport.mode="view"; state.passport.angle="isoFL";
+  A(compile().gpt.includes("NEW CAMERA ANGLE") && compile().gpt.includes("front-left corner"), "New Angle injects chosen angle into prompt");
+  state.passport.angle="aerial";
+  A(compile().gpt.includes("aerial bird") && !compile().gpt.includes("undefined"), "aerial angle clean, no massing leak");
+  state.passport.mode="new"; state.passport.angle=null;
 
   // mode: new = no lock directive
   A(!compile().gpt.includes("SAME BUILDING — NEW CAMERA ANGLE") && !compile().gpt.includes("SINGLE-ITEM EDIT"), "new mode = no lock directive");

@@ -549,6 +549,19 @@ footer{margin-top:28px;text-align:left;font-size:10.5px;opacity:.6}
 /* wayfinding back button */
 .waybtn.back .wn{color:var(--dim)}
 .waybtn .ws{font-family:var(--mono);font-size:10px;letter-spacing:.5px;color:var(--faint);text-transform:uppercase}
+
+/* ── New Angle picker (iso illustration + description) ── */
+.anglegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:9px;margin-top:2px;width:100%;flex:1}
+#ppEdit{width:100%}
+.anglecard{border:1px solid var(--line);border-radius:13px;background:var(--panel);padding:9px 6px 9px;cursor:pointer;text-align:center;transition:transform .16s,border-color .16s,box-shadow .16s}
+.anglecard:hover{border-color:var(--line2);transform:translateY(-2px);box-shadow:var(--shadow)}
+.anglecard.on{border-color:var(--amber);background:linear-gradient(180deg,rgba(255,143,61,.1),transparent);box-shadow:var(--glowA)}
+.anglecard .asvg{width:100%;height:58px;display:block}
+.anglecard .ath{font-size:12px;font-weight:600;color:var(--txt);margin-top:3px}
+.anglecard .aen{font-family:var(--mono);font-size:9px;color:var(--faint);letter-spacing:.3px}
+#ppNote{font-size:12.5px;line-height:1.6;color:var(--dim);margin-top:13px;padding:12px 15px;border-radius:12px;border:1px solid rgba(90,200,245,.22);background:rgba(90,200,245,.05)}
+#ppNote b{color:var(--cyan)}
+#ppNote .subnote{color:var(--faint);font-size:11.5px}
 </style>
 </head>
 <body>
@@ -621,11 +634,7 @@ footer{margin-top:28px;text-align:left;font-size:10.5px;opacity:.6}
       <input type="text" id="ppName" placeholder="เช่น Baan-Riverside / House-A" maxlength="40">
     </div>
     <div class="topic">
-      <div class="tlabel"><span class="name">🧱 Structure &amp; Massing</span><span class="hint">บรรยายรูปทรงหลักที่ต้องคงที่ — ทางเลือก (ภาษาอังกฤษ AI เข้าใจแม่นกว่า)</span></div>
-      <input type="text" id="ppMassing" placeholder="เช่น two-storey L-shaped, gable roof, double-height living" maxlength="160">
-    </div>
-    <div class="topic">
-      <div class="tlabel"><span class="name">🎯 โหมดการ render</span><span class="hint">เลือกว่ากำลังทำอะไรกับอาคารตัวเดิม</span></div>
+      <div class="tlabel"><span class="name">🎯 โหมดการ render</span><span class="hint">เลือกว่ากำลังทำอะไรกับอาคารตัวเดิม — รูปทรง/วัสดุดึงจากค่าที่ตั้งไว้ให้อัตโนมัติ</span></div>
       <div class="seg ppseg" id="ppMode"></div>
       <div class="pills" id="ppEdit" style="margin-top:10px"></div>
       <div class="note" id="ppNote"></div>
@@ -1125,8 +1134,8 @@ const ROLE_EN={auto:"reference (materials and mood only)",material:"material/tex
 /* ---------- state ---------- */
 /* v1.4: site = ช่อง dedicated (เดิม v1.3 เป็น ref role) — site มีรูป → site = image 2, refs เริ่ม image 3 */
 const state={btype:"house", desc:"", topics:{}, refs:[null,null,null,null,null], refRoles:["auto","auto","auto","auto","auto"], model:null, site:null,
-  /* v1.4.1: PASSPORT — identity ของ "หุ่น+เสื้อ" ที่ฉีด verbatim ทุกมุม/ทุกการแก้ */
-  passport:{name:"", massing:"", mode:"new", editKeys:[]}};
+  /* v1.4.1: PASSPORT — identity ที่ฉีด verbatim ทุกมุม/ทุกการแก้ · angle = มุมกล้องเป้าหมาย (New Angle) */
+  passport:{name:"", mode:"new", editKeys:[], angle:null}};
 CFG.forEach(g=>g.topics.forEach(t=>state.topics[t.id]=t.def||"auto"));
 
 /* ---------- v1.3: slider value → prompt fragment ---------- */
@@ -1365,6 +1374,29 @@ function buildSchedule(refIdx,refBase){
 }
 function currentSchedule(){ const refIdx=[]; state.refs.forEach((r,i)=>{if(r)refIdx.push(i);}); return buildSchedule(refIdx, state.site?3:2); }
 
+/* v1.4.1: camera angles for New Angle — มี iso illustration + คำอธิบาย */
+const ANGLES=[
+ {v:"isoFL", th:"iso หน้า-ซ้าย", en:"Iso F-L", d:"เฉียง 3/4 เห็นด้านหน้า + ข้างซ้าย — นิยมที่สุดสำหรับภาพขายงาน"},
+ {v:"front", th:"ด้านหน้า", en:"Front", d:"มองตรงด้านหน้าอาคาร (รูปด้านหน้า)"},
+ {v:"isoFR", th:"iso หน้า-ขวา", en:"Iso F-R", d:"เฉียง 3/4 เห็นด้านหน้า + ข้างขวา"},
+ {v:"left", th:"ด้านซ้าย", en:"Left", d:"มองด้านข้างซ้าย (รูปด้านข้าง)"},
+ {v:"right", th:"ด้านขวา", en:"Right", d:"มองด้านข้างขวา (รูปด้านข้าง)"},
+ {v:"isoBL", th:"iso หลัง-ซ้าย", en:"Iso B-L", d:"เฉียงหลัง เห็นด้านหลัง + ข้างซ้าย"},
+ {v:"back", th:"ด้านหลัง", en:"Back", d:"มองตรงด้านหลังอาคาร"},
+ {v:"isoBR", th:"iso หลัง-ขวา", en:"Iso B-R", d:"เฉียงหลัง เห็นด้านหลัง + ข้างขวา"},
+ {v:"aerial", th:"มุมสูง", en:"Aerial", d:"มองจากมุมสูงลงมา เห็นหลังคา + ผังรวมไซต์"},
+ {v:"eye", th:"ระดับสายตา", en:"Eye-level", d:"มุมคนยืนมอง สมจริงเหมือนยืนอยู่หน้าอาคาร"},
+];
+const ANGLE_EN={isoFL:"a 3/4 isometric view from the front-left corner",front:"a straight-on front elevation view",isoFR:"a 3/4 isometric view from the front-right corner",left:"a left-side elevation view",right:"a right-side elevation view",isoBL:"a 3/4 view from the back-left corner",back:"a rear elevation view",isoBR:"a 3/4 view from the back-right corner",aerial:"a high aerial bird's-eye view showing the roof and overall site",eye:"a realistic ground-level eye-level perspective view"};
+function camIcon(v,on){
+  const P={isoFL:[17,75],front:[48,91],isoFR:[79,75],left:[5,50],right:[91,50],isoBL:[17,21],back:[48,7],isoBR:[79,21],aerial:[48,6],eye:[48,89]}[v]||[48,91];
+  const col=on?"#FF8F3D":"#7C7C86";
+  const ring=on?'<circle cx="48" cy="49" r="41" fill="none" stroke="#FF8F3D" stroke-width="1" stroke-dasharray="2 3" opacity=".3"/>':"";
+  const cone=`<line x1="${P[0]}" y1="${P[1]}" x2="48" y2="49" stroke="${col}" stroke-width="1.3" stroke-dasharray="2.5 2.5" opacity=".6"/>`;
+  const bld='<g><polygon points="48,28 66,38 48,48 30,38" fill="#52525e"/><polygon points="30,38 48,48 48,67 30,57" fill="#3a3a44"/><polygon points="66,38 48,48 48,67 66,57" fill="#2a2a32"/></g>';
+  const cam=`<circle cx="${P[0]}" cy="${P[1]}" r="5.2" fill="${col}"/><circle cx="${P[0]}" cy="${P[1]}" r="2.1" fill="#0A0A0C"/>`;
+  return `<svg viewBox="0 0 96 96" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">${ring}${cone}${bld}${cam}</svg>`;
+}
 const PPMODES=[{v:"new",th:"🆕 New Render"},{v:"view",th:"🔄 New Angle"},{v:"edit",th:"✏️ Edit Material"}];
 function renderPPMode(){
   const seg=$("#ppMode"); if(!seg) return; seg.innerHTML="";
@@ -1377,18 +1409,34 @@ function renderPPMode(){
 }
 function renderPPEdit(){
   const wrap=$("#ppEdit"), note=$("#ppNote"); if(!wrap||!note) return;
-  wrap.innerHTML="";
-  if(state.passport.mode!=="edit"){
+  wrap.innerHTML=""; const m=state.passport.mode;
+  if(m==="new"){
     wrap.style.display="none";
-    note.textContent = state.passport.mode==="view"
-      ? "🔄 New Angle: render อาคาร+วัสดุชุดเดิมเป๊ะ เปลี่ยนแค่มุมกล้อง — แนบรูป render รอบก่อนเป็น ref ด้วย"
-      : "🆕 New Render: รอบแรก = สร้างอาคาร+วัสดุต้นแบบ — รอบถัดไปใช้ New Angle / Edit Material เพื่อล็อกให้เหมือนเดิม";
+    note.innerHTML="🆕 <b>New Render</b> — รอบแรก: ตั้งค่าทุกอย่างปกติแล้วกด Generate เพื่อสร้างอาคาร+วัสดุต้นแบบ · รอบถัดไปค่อยใช้ <b>New Angle</b> / <b>Edit Material</b> เพื่อล็อกให้เหมือนเดิม";
     return;
   }
+  if(m==="view"){ /* New Angle — เลือกมุมกล้องพร้อมรูป iso + คำอธิบาย */
+    wrap.style.display="";
+    const grid=document.createElement("div"); grid.className="anglegrid";
+    ANGLES.forEach(a=>{
+      const on=state.passport.angle===a.v;
+      const c=document.createElement("button"); c.type="button"; c.className="anglecard"+(on?" on":"");
+      c.innerHTML=`<div class="asvg">${camIcon(a.v,on)}</div><div class="ath">${a.th}</div><div class="aen">${a.en}</div>`;
+      c.onclick=()=>{ state.passport.angle = on?null:a.v; renderPPEdit(); };
+      grid.appendChild(c);
+    });
+    wrap.appendChild(grid);
+    const sel=ANGLES.find(a=>a.v===state.passport.angle);
+    note.innerHTML = sel
+      ? `🔄 <b>มุม: ${sel.th} · ${sel.en}</b> — ${sel.d}<br><span class="subnote">วิธีใช้: จับภาพโมเดล 3D จากมุมนี้ → ใส่ช่อง IMAGE 1 · วัสดุล็อกอัตโนมัติจากสเปก · (เสริม) แนบ render รอบก่อนเป็น ref เพื่อยึดหน้าตาแน่นขึ้น</span>`
+      : "🔄 <b>New Angle</b> — เลือกมุมกล้องเป้าหมายด้านบน แล้วจับภาพโมเดลจากมุมนั้นใส่ IMAGE 1 · ระบบล็อกอาคาร+วัสดุให้เหมือนเดิมให้อัตโนมัติ";
+    return;
+  }
+  /* Edit Material */
   wrap.style.display="";
   const sch=currentSchedule();
-  if(!sch.length){ note.textContent="✏️ ยังไม่มีวัสดุในสเปก — เลือกวัสดุก่อน (กลุ่มวัสดุ)"; return; }
-  note.textContent="✏️ Edit Material: เลือกวัสดุ (W#) ที่จะเปลี่ยน — ที่เหลือถูกล็อกให้เหมือน render เดิมเป๊ะ";
+  if(!sch.length){ note.innerHTML="✏️ <b>Edit Material</b> — ยังไม่มีวัสดุในสเปก เลือกวัสดุก่อน (หัวข้อ วัสดุ)"; return; }
+  note.innerHTML="✏️ <b>Edit Material</b> — เลือกวัสดุ (W#) ที่จะเปลี่ยน · ที่เหลือถูกล็อกให้เหมือน render เดิมเป๊ะ";
   const ek=new Set(state.passport.editKeys||[]);
   sch.forEach(s=>{
     const b=document.createElement("button"); b.type="button";
@@ -1399,7 +1447,6 @@ function renderPPEdit(){
   });
 }
 $("#ppName").oninput=e=>{ state.passport.name=e.target.value; };
-$("#ppMassing").oninput=e=>{ state.passport.massing=e.target.value; };
 renderPPMode(); renderPPEdit();
 
 /* building type pills — v1.3: 2 ชั้น (หมวด → ชนิดย่อย) */
@@ -1689,16 +1736,18 @@ function compile(){
   const subj=`This is an untextured 3D model of a ${bt.en}${desc?" — "+desc:""}.`;
 
   /* — v1.4.1: BUILDING PASSPORT — identity (หุ่น+เสื้อ) ฉีด verbatim ทุกมุม/ทุกการแก้ — */
-  const pp=state.passport||{name:"",massing:"",mode:"new",editKeys:[]};
+  const pp=state.passport||{name:"",mode:"new",editKeys:[],angle:null};
   const ppId=(pp.name&&pp.name.trim())?pp.name.trim():"Building-1";
-  const formBits=[bt.en]; if(pp.massing&&pp.massing.trim()) formBits.push(pp.massing.trim()); if(desc) formBits.push(desc);
+  /* v1.4.1: FORM auto-derive จากค่าที่ตั้งอยู่แล้ว (ประเภท + คำอธิบาย + สไตล์) — ไม่ต้องพิมเอง */
+  const formBits=[bt.en]; if(desc) formBits.push(desc); const _as=frag("archstyle"); if(_as) formBits.push(_as);
   const ppLines=[`=== BUILDING PASSPORT · "${ppId}" (identical in every view — do not reinterpret) ===`,
     `FORM (locked): ${formBits.join(", ")}. Geometry, massing, proportions, every window/door position and size, and the roof form are FIXED exactly as in image 1.`];
   if(schedule.length){ ppLines.push("MATERIAL SCHEDULE (locked — apply each material only to its surface and keep it byte-identical across every view):");
     schedule.forEach(s=>ppLines.push(`  ${s.key} — ${s.label}: ${s.en}`)); }
   const passportBlock=ppLines.join("\n");
   let modeLine="";
-  if(pp.mode==="view") modeLine=`SAME BUILDING — NEW CAMERA ANGLE: image 1 and the passport above define a building that was already rendered. This is ANOTHER camera viewpoint of that exact same building. Reproduce the building and EVERY material in the passport identically — ONLY the camera angle/position changes. Do not redesign, recolor, re-material, add or remove anything.`;
+  if(pp.mode==="view"){ const angTxt=(pp.angle&&ANGLE_EN[pp.angle])?` Render the building as ${ANGLE_EN[pp.angle]}.`:"";
+    modeLine=`SAME BUILDING — NEW CAMERA ANGLE: image 1 and the passport above define a building that was already rendered. This is ANOTHER camera viewpoint of that exact same building. Reproduce the building and EVERY material in the passport identically — ONLY the camera angle/position changes.${angTxt} Do not redesign, recolor, re-material, add or remove anything.`; }
   else if(pp.mode==="edit"){ const ek=pp.editKeys||[]; const chg=schedule.filter(s=>ek.includes(s.tid));
     const chgTxt=chg.length?chg.map(s=>`${s.key} (${s.label}) → ${s.en}`).join("; "):"the selected material only";
     modeLine=`SINGLE-ITEM EDIT: reproduce the building EXACTLY as in the passport and identical to the previous render. Change ONLY: ${chgTxt}. Every OTHER material, all geometry, the lighting and the camera must stay identical to the previous render.`; }
@@ -1827,7 +1876,7 @@ $("#btnGen").onclick=()=>{
 
 /* ---------- save / reset / toast ---------- */
 $("#btnSave").onclick=()=>{
-  localStorage.setItem(VER, JSON.stringify({btype:state.btype,desc:state.desc,topics:state.topics,refRoles:state.refRoles,passport:{name:state.passport.name,massing:state.passport.massing}}));
+  localStorage.setItem(VER, JSON.stringify({btype:state.btype,desc:state.desc,topics:state.topics,refRoles:state.refRoles,passport:{name:state.passport.name}}));
   toast("💾 บันทึก preset + passport ในเครื่องแล้ว");
 };
 $("#btnReset").onclick=()=>{
@@ -1843,8 +1892,7 @@ $("#btnReset").onclick=()=>{
     if(s.topics) Object.keys(state.topics).forEach(k=>{ if(s.topics[k]&&!String(s.topics[k]).startsWith("ref")) state.topics[k]=s.topics[k]; });
     if(s.btype&&BTYPES.some(b=>b.v===s.btype)){state.btype=s.btype; btcat=catOfBtype(s.btype); renderBtCats(); renderBtypes(); renderChips();}
     if(s.desc){state.desc=s.desc; descEl.value=s.desc; descEl.dispatchEvent(new Event("input"));}
-    if(s.passport){ state.passport.name=s.passport.name||""; state.passport.massing=s.passport.massing||"";
-      const n=$("#ppName"),m=$("#ppMassing"); if(n)n.value=state.passport.name; if(m)m.value=state.passport.massing; }
+    if(s.passport){ state.passport.name=s.passport.name||""; const n=$("#ppName"); if(n)n.value=state.passport.name; }
     refreshAllPills(); updateBadges(); checkConflicts();
   }catch(e){ localStorage.removeItem(VER); }
 })();
