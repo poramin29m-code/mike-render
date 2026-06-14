@@ -524,6 +524,31 @@ footer{margin-top:28px;text-align:left;font-size:10.5px;opacity:.6}
   .cv-scroll{padding:22px 16px 130px}
   .cv-gen{padding:9px 16px;font-size:13px}
 }
+
+/* ═══════════ v2.1 — typography scale (web standard) + 2-level guidance ═══════════ */
+/* scale ~1.25 major-third: 32 / 16 / 15 / 13.5 / 11 · line-height tight headers, 1.6 body */
+.sec-head{margin-bottom:0}
+.sec-label{font-size:11px;letter-spacing:2px;font-weight:600;color:var(--amber)}
+.sec-title{font-size:clamp(26px,3.4vw,32px);font-weight:800;letter-spacing:-.7px;line-height:1.08;margin-top:8px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.sec-title .en{font-size:.46em;font-weight:500;color:var(--dim);letter-spacing:.3px}
+.sec-sub{display:none}
+/* MAIN section guide — one per section, prominent (but not loud) */
+.sec-guide{display:flex;gap:12px;margin:18px 0 28px;padding:15px 18px;border-radius:14px;
+  border:1px solid rgba(255,143,61,.26);background:linear-gradient(180deg,rgba(255,143,61,.07),rgba(255,143,61,.012));
+  font-size:13.5px;line-height:1.6;align-items:flex-start}
+.sec-guide.empty{display:none}
+.sec-guide .gic{font-size:15px;flex-shrink:0;margin-top:1px}
+.sec-guide .gtxt{color:var(--dim)}
+.sec-guide .gtxt b{color:var(--txt);font-weight:600}
+/* SUBTOPIC — prominent label + subtle recommendation (less than main guide) */
+.topic{padding:18px 0}
+.tlabel{display:flex;flex-direction:column;align-items:flex-start;gap:4px;margin-bottom:11px}
+.tlabel .name{font-size:15.5px;font-weight:700;color:var(--txt);letter-spacing:-.2px}
+.tlabel .hint{font-size:12.5px;font-weight:400;color:var(--dim);line-height:1.5}
+.tlabel .hint::before{content:"↳ ";color:var(--faint)}
+/* wayfinding back button */
+.waybtn.back .wn{color:var(--dim)}
+.waybtn .ws{font-family:var(--mono);font-size:10px;letter-spacing:.5px;color:var(--faint);text-transform:uppercase}
 </style>
 </head>
 <body>
@@ -534,7 +559,7 @@ footer{margin-top:28px;text-align:left;font-size:10.5px;opacity:.6}
   <nav class="nav" id="nav"></nav>
   <div class="sidefoot">
     <button class="tbtn" id="themeBtn" title="สลับโทนสว่าง/มืด">◐</button>
-    <span class="ver">v2.0</span>
+    <span class="ver">v1.4.1</span>
   </div>
 </aside>
 <div class="navBackdrop" id="navBackdrop"></div>
@@ -1831,15 +1856,15 @@ if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch
 
 /* ════════ v2.0 — section navigation (editing-app paradigm) ════════ */
 const SECTIONS=[
- {id:"grpA", n:"01", t:"แหล่งภาพ", sub:"เพิ่มภาพโมเดล 3D — ภาพเดียวก็เริ่มได้ · รูปอยู่ในเครื่อง ไม่ส่งออกไปไหน", guide:"<b>เริ่มที่นี่:</b> วางภาพโมเดล 3D ในช่อง IMAGE 1 (บังคับ) → เลือกประเภทอาคาร → เขียนคำอธิบายสั้นๆ แล้วไปหัวข้อถัดไป", preset:true},
- {id:"grpPP", n:"02", t:"Design Lock", sub:"ล็อกอาคาร + วัสดุ ให้เหมือนเดิมทุก render — สำหรับงานหลายมุม/หลายรอบ", guide:"<b>ใช้เมื่อ render หลายรอบ:</b> ตั้งชื่อโปรเจค → เลือกโหมด (มุมใหม่ = เปลี่ยนมุมกล้อง · แก้วัสดุ = เปลี่ยนทีละชิ้น) ระบบคุมให้เหมือนเดิมอัตโนมัติ"},
- {id:"grpB", n:"03", t:"เอาต์พุต", sub:"AI เป้าหมาย · สไตล์ภาพ · ระดับสมจริง", guide:"GPT lock geometry แข็งสุด · สไตล์วาดเสี่ยง drift บน Gemini"},
- {id:"grpC", n:"04", t:"แสง · เวลา · อากาศ", sub:"เลื่อน slider หรือกดปุ่มคำ — บรรยากาศที่ AI ทำตามได้แม่นที่สุด", guide:"golden hour = ภาพขายงานสวย · midday = catalog สะอาด · กดปุ่มคำได้ถ้าไม่อยากเลื่อน"},
- {id:"grpD", n:"05", t:"บริบทรอบอาคาร", sub:"ที่ตั้ง · สวน · รั้ว · พื้นรอบบ้าน · ฉากหลัง", guide:""},
- {id:"grpE", n:"06", t:"วัสดุ", sub:"override วัสดุแต่ละผิว — 📚 คลังวัสดุ 90+ · 🎨 สีเอง · จาก ref", guide:"กด <b>📚 คลังวัสดุ</b> เพื่อเลือกจากรายการ ไทย⇄อังกฤษ พร้อมรูปตัวอย่าง"},
- {id:"grpF", n:"07", t:"กล้อง", sub:"มุมกล้อง · เลนส์ · เอฟเฟกต์ภาพถ่าย · สัดส่วน", guide:""},
- {id:"grpG", n:"08", t:"ชีวิตในภาพ", sub:"หุ่นมาตราส่วน · คน · รถ · ของประกอบฉาก", guide:""},
- {id:"grpH", n:"09", t:"ความเข้มงวด", sub:"ระดับการล็อกรูปทรง geometry", guide:""},
+ {id:"grpA", n:"01", t:"แหล่งภาพ", en:"Source", guide:"<b>อัปโหลดภาพโมเดล 3D</b> ของอาคารในช่อง IMAGE 1 (บังคับ) — ภาพเดียวก็เริ่มได้ · เลือกประเภทอาคาร + เขียนคำอธิบายสั้น เพื่อให้ AI เข้าใจงาน · <b>รูปอยู่ในเครื่อง ไม่ส่งออกไปไหน</b>", preset:true},
+ {id:"grpPP", n:"02", t:"ล็อกแบบ", en:"Design Lock", guide:"<b>ใช้เมื่อต้อง render หลายมุม/หลายรอบ</b> ให้อาคาร+วัสดุเหมือนเดิมเป๊ะ — ตั้งชื่อโปรเจค แล้วเลือกโหมด: <b>มุมใหม่</b> (เปลี่ยนมุมกล้อง) หรือ <b>แก้วัสดุ</b> (เปลี่ยนทีละชิ้น)"},
+ {id:"grpB", n:"03", t:"เอาต์พุต", en:"Output", guide:"<b>เลือก AI ที่จะใช้ + สไตล์ภาพ</b> — GPT ล็อกรูปทรงแข็งสุด · ภาพถ่าย = สมจริง · CG = คมสะอาด"},
+ {id:"grpC", n:"04", t:"แสงและเวลา", en:"Lighting", guide:"<b>คุมบรรยากาศแสง</b> ที่ AI ทำตามได้แม่นสุด — golden hour = ภาพขายงานอุ่นสวย · เที่ยง = catalog สะอาด · เลื่อน slider หรือกดปุ่มคำก็ได้"},
+ {id:"grpD", n:"05", t:"สภาพแวดล้อม", en:"Surroundings", guide:"<b>จัดฉากรอบอาคาร</b> — ที่ตั้ง สวน รั้ว พื้น และฉากหลัง ให้เข้ากับงาน"},
+ {id:"grpE", n:"06", t:"วัสดุ", en:"Materials", guide:"<b>กำหนดวัสดุแต่ละผิว</b> (ผนัง/หลังคา/พื้น…) — กด <b>📚 คลังวัสดุ</b> เลือกจาก 90+ รายการ ไทย⇄อังกฤษ พร้อมรูป · หรือกำหนดสีเอง 🎨"},
+ {id:"grpF", n:"07", t:"มุมกล้อง", en:"Camera", guide:"<b>ตั้งมุมกล้องและเลนส์</b> — ค่าเริ่มต้นล็อกมุมตามภาพโมเดล (แนะนำ) · ปรับเลนส์/เอฟเฟกต์/สัดส่วนได้"},
+ {id:"grpG", n:"08", t:"องค์ประกอบฉาก", en:"Scene", guide:"<b>เพิ่มชีวิตในภาพ</b> — คน รถ ของประกอบ ให้ได้สเกลและความสมจริง"},
+ {id:"grpH", n:"09", t:"ความเข้มงวด", en:"Strictness", guide:"<b>ระดับการล็อกรูปทรง</b> — STRICT = ห้ามขยับทุกองค์ประกอบ (แนะนำ)"},
 ];
 let activeSec="grpA";
 function buildNav(){
@@ -1856,19 +1881,19 @@ function showSection(id){
   document.querySelectorAll(".grp").forEach(g=>{ g.classList.remove("shown"); if(g.tagName==="DETAILS") g.open=true; });
   const el=document.getElementById(s.id); if(el) el.classList.add("shown");
   const pb=$("#presetBar"); if(pb) pb.style.display=s.preset?"":"none";
-  $("#secLabel").textContent=s.n+" / "+s.t.toUpperCase();
-  $("#secTitle").textContent=s.t;
-  $("#secSub").textContent=s.sub||"";
-  const g=$("#secGuide"); if(g){ if(s.guide){g.style.display="block";g.innerHTML="💡 "+s.guide;} else g.style.display="none"; }
+  $("#secLabel").textContent=s.n+"  ·  "+(s.en||"").toUpperCase(); /* English label — ไม่ซ้ำกับ title ไทย */
+  $("#secTitle").innerHTML=s.t+(s.en?` <span class="en">${s.en}</span>`:"");
+  const g=$("#secGuide"); if(g){ if(s.guide){g.classList.remove("empty");g.innerHTML=`<span class="gic">💡</span><span class="gtxt">${s.guide}</span>`;} else g.classList.add("empty"); }
   document.querySelectorAll(".navitem").forEach(n=>n.classList.toggle("on",n.dataset.sec===s.id));
   buildWayfind(s.id); closeNav();
   const sc=$(".cv-scroll"); if(sc) sc.scrollTop=0;
 }
 function buildWayfind(id){
-  const w=$("#wayfind"); if(!w)return; const i=SECTIONS.findIndex(x=>x.id===id); const next=SECTIONS[i+1];
-  let html='<span class="wlabel">ขั้นถัดไป →</span>';
-  if(next) html+=`<div class="waybtn" data-go="${next.id}"><span class="wn">${next.n}</span><div><div class="wt">${next.t}</div><div class="ws">${next.sub?next.sub.slice(0,38):""}</div></div></div>`;
-  html+=`<div class="waybtn primary" data-gen="1"><span class="wn">⚡</span><div><div class="wt">Generate Prompt</div><div class="ws">สร้าง prompt ทั้ง 4 ค่าย</div></div></div>`;
+  const w=$("#wayfind"); if(!w)return; const i=SECTIONS.findIndex(x=>x.id===id); const prev=SECTIONS[i-1], next=SECTIONS[i+1];
+  let html='<span class="wlabel">↹ ย้อนกลับ / ไปต่อ</span>';
+  if(prev) html+=`<div class="waybtn back" data-go="${prev.id}"><span class="wn">←</span><div><div class="ws">ก่อนหน้า</div><div class="wt">${prev.t}</div></div></div>`;
+  if(next) html+=`<div class="waybtn" data-go="${next.id}"><span class="wn">${next.n}</span><div><div class="ws">ถัดไป</div><div class="wt">${next.t}</div></div></div>`;
+  html+=`<div class="waybtn primary" data-gen="1"><span class="wn">⚡</span><div><div class="wt">Generate Prompt</div><div class="ws">สร้าง 4 ค่าย</div></div></div>`;
   w.innerHTML=html;
   w.querySelectorAll(".waybtn[data-go]").forEach(b=>b.onclick=()=>showSection(b.dataset.go));
   const gb=w.querySelector(".waybtn[data-gen]"); if(gb)gb.onclick=()=>$("#btnGen").onclick();

@@ -1,4 +1,4 @@
-const C = "mike-render-v2.0";
+const C = "mike-render-v1.4.1-ui3";
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(C).then(c => c.addAll(["./", "./index.html", "./manifest.webmanifest"])));
   self.skipWaiting();
